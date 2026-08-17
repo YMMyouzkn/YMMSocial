@@ -26175,7 +26175,7 @@ A.getOfficialAppUrl = function(){
   try {
     if (A.APP_REAL_BASE) return String(A.APP_REAL_BASE).replace(/\/?$/, '/');
   } catch (e) {}
-  return 'https://youzkingnetworkyousefapp-gif.github.io/yousefymm/';
+  return 'https://ymmyouzkn.github.io/YMMSocial/';
 };
 
 A.checkFullHtmlRedirect = function(){
@@ -26185,7 +26185,7 @@ A.checkFullHtmlRedirect = function(){
     var official = A.getOfficialAppUrl();
     var onOfficial = false;
     try {
-      onOfficial = location.href.indexOf('youzkingnetworkyousefapp-gif.github.io') >= 0;
+      onOfficial = location.href.indexOf('ymmyouzkn.github.io') >= 0;
     } catch (e0) {}
     var onBlob = false;
     try { onBlob = String(location.protocol) === 'blob:'; } catch (e1) {}
@@ -27139,9 +27139,9 @@ ready(function(A, S){
   if(A._deepLinks) return; A._deepLinks = 1;
 
   // الرابط الرسمي للتطبيق (GitHub Pages)
-  A.APP_REAL_BASE = 'https://youzkingnetworkyousefapp-gif.github.io/yousefymm/';
+  A.APP_REAL_BASE = 'https://ymmyouzkn.github.io/YMMSocial/';
   // رابط الفتح عبر Social Creator (للمشاركة الخارجية)
-  A.APP_SHARE_WRAPPER = 'https://www.socialcreator.com/youznet/?s=323377&url=';
+  A.APP_SHARE_WRAPPER = ''; // direct official link
 
   A.getAppBaseUrl = function(){
     try{
@@ -27414,13 +27414,13 @@ function ready(cb){
 ready(function(A, S){
   if(A._shareFixAll) return; A._shareFixAll = 1;
 
-  // Ensure public base + socialcreator wrapper
-  A.APP_REAL_BASE = A.APP_REAL_BASE || 'https://youzkingnetworkyousefapp-gif.github.io/yousefymm/';
-  A.APP_SHARE_WRAPPER = A.APP_SHARE_WRAPPER || 'https://www.socialcreator.com/youznet/?s=323377&url=';
+  // Ensure public base URL for shares
+  A.APP_REAL_BASE = A.APP_REAL_BASE || 'https://ymmyouzkn.github.io/YMMSocial/';
+  A.APP_SHARE_WRAPPER = ''; // direct official link — no wrapper
 
   if(!A.getAppBaseUrl || !A._shareBaseFixed){
     A.getAppBaseUrl = function(){
-      return String(A.APP_REAL_BASE || 'https://youzkingnetworkyousefapp-gif.github.io/yousefymm/').replace(/\/?$/,'/');
+      return String(A.APP_REAL_BASE || 'https://ymmyouzkn.github.io/YMMSocial/').replace(/\/?$/,'/');
     };
     A._shareBaseFixed = 1;
   }
@@ -32524,7 +32524,7 @@ ready(function(A, S){
     if(A._ymmSettingsSafeV2) return; A._ymmSettingsSafeV2=1;
 
     A.openOfficialSite=function(){
-      var url='https://www.socialcreator.com/youznet';
+      var url='https://ymmyouzkn.github.io/YMMSocial/';
       try{ if(typeof A.openInappBrowser==='function'){ A.openInappBrowser(url); return; } }catch(e){}
       window.open(url,'_blank','noopener');
     };
@@ -32673,11 +32673,11 @@ body.reel-clean-mode #reel-clean-btn{background:rgba(37,99,235,.85)}
     A._ymmFinalUx20260814 = 1;
 
     /* 1) Deep links / share / copy */
-    A.APP_REAL_BASE = 'https://youzkingnetworkyousefapp-gif.github.io/yousefymm/';
+    A.APP_REAL_BASE = 'https://ymmyouzkn.github.io/YMMSocial/';
     A.APP_SHARE_WRAPPER = '';
 
     A.getAppBaseUrl = function(){
-      return String(A.APP_REAL_BASE || 'https://youzkingnetworkyousefapp-gif.github.io/yousefymm/').replace(/\/?$/,'/');
+      return String(A.APP_REAL_BASE || 'https://ymmyouzkn.github.io/YMMSocial/').replace(/\/?$/,'/');
     };
 
     A.buildDeepLink = function(type, id){
@@ -38186,6 +38186,461 @@ import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/fireba
     console.log('YMM REELS CHROME + SETTINGS TABS ready');
   });
 })();
+</script>
+
+
+
+<!-- YMM SHARE + VOICE + CALLS MASTER FIX 2026-08-17 -->
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getFirestore, doc, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getDatabase, ref as dbRef, set, get, onValue, onDisconnect, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+
+const CFG = {
+  apiKey: "AIzaSyDTsnFVRRas32lIdqKM8TnglNW1-VYTspQ",
+  authDomain: "ymmai-59c6c.firebaseapp.com",
+  projectId: "ymmai-59c6c",
+  storageBucket: "ymmai-59c6c.firebasestorage.app",
+  messagingSenderId: "598941300583",
+  appId: "1:598941300583:web:3aa6c28b51f8d6f9ffa1c2",
+  databaseURL: "https://ymmai-59c6c-default-rtdb.firebaseio.com"
+};
+
+function appSafe(){
+  try{ return getApps().length ? getApp() : initializeApp(CFG); }catch(e){ try{return getApp()}catch(e2){return initializeApp(CFG)} }
+}
+const app = appSafe();
+const fs = getFirestore(app);
+const rtdbDb = getDatabase(app);
+let storageInst = null;
+try{ storageInst = getStorage(app); }catch(e){}
+try{
+  window.rtdb = rtdbDb;
+  window.db = fs;
+  window.__ymmFs = fs;
+  window.__ymmRtdb = rtdbDb;
+  if(storageInst) window.__ymmStorage = storageInst;
+}catch(e){}
+
+const OFFICIAL_BASE = 'https://ymmyouzkn.github.io/YMMSocial/';
+
+function ready(cb){
+  if(window.App && window.AppState) return cb(window.App, window.AppState);
+  setTimeout(function(){ ready(cb); }, 25);
+}
+
+ready(function(A, S){
+  if(A._ymmShareVoiceCallsFix) return;
+  A._ymmShareVoiceCallsFix = 1;
+
+  /* ========== 1) SHARE LINKS — fixed official base ========== */
+  A.APP_REAL_BASE = OFFICIAL_BASE;
+  A.APP_SHARE_WRAPPER = '';
+
+  A.getOfficialAppUrl = function(){
+    return String(A.APP_REAL_BASE || OFFICIAL_BASE).replace(/\/?$/, '/');
+  };
+  A.getAppBaseUrl = function(){
+    return String(A.APP_REAL_BASE || OFFICIAL_BASE).replace(/\/?$/, '/');
+  };
+
+  A.buildDeepLink = function(type, id){
+    var base = A.getAppBaseUrl();
+    type = String(type || '').toLowerCase();
+    if(type === 'video') type = 'reel';
+    if(type === 'profile') type = 'user';
+    id = encodeURIComponent(String(id || ''));
+    if(type === 'post') return base + '#/post/' + id;
+    if(type === 'reel') return base + '#/reel/' + id;
+    if(type === 'user') return base + '#/user/' + id;
+    if(type === 'group') return base + '#/group/' + id;
+    if(type === 'channel') return base + '#/channel/' + id;
+    return base;
+  };
+
+  async function copyText(text){
+    text = String(text || '');
+    if(!text) return false;
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    }catch(e){}
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly','');
+      ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      var ok = document.execCommand('copy');
+      ta.remove();
+      return !!ok;
+    }catch(e2){ return false; }
+  }
+
+  A.copyDeepLink = async function(type, id){
+    if(!id && type !== 'home'){
+      A.showToast && A.showToast('لا يوجد عنصر للمشاركة','error');
+      return '';
+    }
+    var link = A.buildDeepLink(type, id);
+    var ok = await copyText(link);
+    if(ok) A.showToast && A.showToast('تم نسخ الرابط','success');
+    else {
+      try{ prompt('انسخ الرابط:', link); }catch(e){}
+      A.showToast && A.showToast('انسخ الرابط يدوياً','info');
+    }
+    return link;
+  };
+
+  A.copyShareLink = function(){
+    var id = (document.getElementById('share-item-id')||{}).value;
+    var type = (document.getElementById('share-item-type')||{}).value || 'post';
+    type = String(type).toLowerCase();
+    if(type === 'video') type = 'reel';
+    if(type === 'profile') type = 'user';
+    return A.copyDeepLink(type, id);
+  };
+  A.copyShareModalLink = function(){ return A.copyShareLink(); };
+  A.copyShareProfileLink = function(){
+    var id = (document.getElementById('share-item-id')||{}).value || (S.user && S.user.uid);
+    return A.copyDeepLink('user', id);
+  };
+
+  // Web Share API when available
+  A.nativeShareLink = async function(type, id, title){
+    var link = A.buildDeepLink(type, id);
+    title = title || 'YMM Social';
+    try{
+      if(navigator.share){
+        await navigator.share({ title: title, url: link, text: title + '\n' + link });
+        return true;
+      }
+    }catch(e){
+      if(e && e.name === 'AbortError') return false;
+    }
+    await A.copyDeepLink(type, id);
+    return false;
+  };
+
+  // Patch openShareModal to refresh link display + copy buttons
+  if(typeof A.openShareModal === 'function'){
+    var _osm = A.openShareModal.bind(A);
+    A.openShareModal = function(itemId, itemType){
+      var r = _osm(itemId, itemType);
+      try{
+        var type = String(itemType||'post').toLowerCase();
+        if(type==='video') type='reel';
+        if(type==='profile') type='user';
+        var link = A.buildDeepLink(type, itemId);
+        var inp = document.getElementById('share-link-input') || document.getElementById('share-link-preview') || document.querySelector('#share-modal input[readonly], #share-modal input[type="text"]');
+        if(inp){ inp.value = link; }
+        var hidId = document.getElementById('share-item-id');
+        var hidType = document.getElementById('share-item-type');
+        if(hidId) hidId.value = itemId || '';
+        if(hidType) hidType.value = type;
+        var copyBtn = document.getElementById('ymm-share-copy-link-btn');
+        if(copyBtn){
+          copyBtn.onclick = function(ev){ try{ev.preventDefault();ev.stopPropagation();}catch(e){} A.copyShareModalLink(); };
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  // Official host redirect check uses new domain
+  if(typeof A.checkFullHtmlRedirect === 'function'){
+    var _chk = A.checkFullHtmlRedirect.bind(A);
+    A.checkFullHtmlRedirect = function(){
+      try{
+        // keep official detection current
+        A.APP_REAL_BASE = OFFICIAL_BASE;
+      }catch(e){}
+      return _chk();
+    };
+  }
+
+  /* ========== 2) VOICE MESSAGES — robust record / upload / play ========== */
+  A._getRecorderMime = function(preferVideo){
+    var candidates = preferVideo
+      ? ['video/webm;codecs=vp8,opus','video/webm','video/mp4']
+      : ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg','audio/mp4','audio/aac'];
+    for(var i=0;i<candidates.length;i++){
+      try{ if(window.MediaRecorder && MediaRecorder.isTypeSupported(candidates[i])) return candidates[i]; }catch(e){}
+    }
+    return '';
+  };
+
+  // Safer upload for voice (Storage then dataURL fallback for small clips)
+  A.uploadVoiceBlob = async function(blob, blobType){
+    blobType = blobType || blob.type || 'audio/webm';
+    var ext = 'webm';
+    if(blobType.indexOf('ogg')>=0) ext='ogg';
+    else if(blobType.indexOf('mp4')>=0 || blobType.indexOf('aac')>=0 || blobType.indexOf('m4a')>=0) ext='m4a';
+    var fileName = 'voice_'+Date.now()+'.'+ext;
+    var file = new File([blob], fileName, { type: blobType });
+
+    // Try existing uploader
+    if(typeof A.uploadFileToStorage === 'function'){
+      try{
+        var url = await A.uploadFileToStorage(file, 'voice_messages');
+        if(url) return url;
+      }catch(e){ console.warn('uploadFileToStorage voice', e); }
+    }
+
+    // Direct Storage
+    try{
+      if(storageInst){
+        var uid = (S.user && S.user.uid) || 'anon';
+        var path = 'voice_messages/'+uid+'/'+fileName;
+        var refP = storageRef(storageInst, path);
+        await uploadBytes(refP, blob, { contentType: blobType, cacheControl: 'public,max-age=31536000' });
+        var dl = await getDownloadURL(refP);
+        if(dl) return dl;
+      }
+    }catch(e2){ console.warn('direct storage voice', e2); }
+
+    // dataURL fallback (small)
+    if(blob.size <= 900*1024){
+      var dataUrl = await new Promise(function(resolve, reject){
+        var fr = new FileReader();
+        fr.onload = function(){ resolve(fr.result); };
+        fr.onerror = reject;
+        fr.readAsDataURL(blob);
+      });
+      return dataUrl;
+    }
+    throw new Error('voice upload failed');
+  };
+
+  // Harden sendVoicePreview
+  A.sendVoicePreview = async function(){
+    var p = S._voicePreview;
+    if(!p || !p.blob){ A.showToast && A.showToast('لا توجد معاينة صوتية','error'); return; }
+    var context = p.context;
+    var duration = p.duration || 1;
+    var blob = p.blob;
+    var blobType = p.blobType || blob.type || 'audio/webm';
+    if(typeof A._hideVoicePreview === 'function') A._hideVoicePreview();
+    else {
+      try{ var bar=document.getElementById('voice-preview-bar'); if(bar) bar.remove(); }catch(e){}
+      S._voicePreview = null;
+    }
+    A.showToast && A.showToast('جاري رفع الرسالة الصوتية...','info');
+    try{
+      var voiceUrl = await A.uploadVoiceBlob(blob, blobType);
+      var msgData = {
+        senderId: S.user.uid,
+        type: 'voice',
+        mediaUrl: voiceUrl,
+        voiceDuration: duration,
+        createdAt: Date.now(),
+        views: [S.user.uid]
+      };
+      if(context === 'chat' && S.activeChatUserId){
+        msgData.receiverId = S.activeChatUserId;
+        msgData.id = (A.generateDocId && A.generateDocId('msg')) || ('msg_'+Date.now());
+        if(!S.messagesList) S.messagesList = [];
+        if(!S.messagesList.some(function(x){ return x.id === msgData.id; })) S.messagesList.push(msgData);
+        await setDoc(doc(fs, 'messages', msgData.id), msgData);
+        try{ A.createNotification && A.createNotification(S.activeChatUserId, 'message', 'أرسل لك رسالة صوتية'); }catch(e){}
+        try{ A.renderChatMessages && A.renderChatMessages(); }catch(e){}
+        try{ A.renderChatList && A.renderChatList(); }catch(e){}
+      } else if(context === 'group' && S.activeGroupId){
+        msgData.groupId = S.activeGroupId;
+        msgData.id = (A.generateDocId && A.generateDocId('msg')) || ('msg_'+Date.now());
+        if(!S.messagesList) S.messagesList = [];
+        if(!S.messagesList.some(function(x){ return x.id === msgData.id; })) S.messagesList.push(msgData);
+        await setDoc(doc(fs, 'messages', msgData.id), msgData);
+        try{ A.renderGroupMessages && A.renderGroupMessages(); }catch(e){}
+        try{ A.renderChatList && A.renderChatList(); }catch(e){}
+      } else {
+        A.showToast && A.showToast('افتح محادثة أولاً','error');
+        return;
+      }
+      A.showToast && A.showToast('✓ تم إرسال الرسالة الصوتية','success');
+    }catch(err){
+      console.error(err);
+      A.showToast && A.showToast('فشل إرسال الرسالة الصوتية','error');
+    }
+  };
+
+  // Harden playVoiceMessage (works with data-voice-url and CORS-ish issues)
+  A.playVoiceMessage = function(btn){
+    try{
+      var container = btn && btn.closest ? btn.closest('.voice-msg') : null;
+      if(!container) return;
+      var url = container.dataset.voiceUrl || container.getAttribute('data-voice-url');
+      if(!url){ A.showToast && A.showToast('لا يوجد ملف صوتي','error'); return; }
+      if(!window._currentVoiceAudio){
+        window._currentVoiceAudio = new Audio();
+        window._currentVoiceAudio.preload = 'auto';
+        window._currentVoiceAudio.onended = function(){
+          document.querySelectorAll('.voice-msg button i').forEach(function(i){ i.className = 'fas fa-play'; });
+        };
+        window._currentVoiceAudio.onerror = function(){
+          A.showToast && A.showToast('تعذر تشغيل الرسالة الصوتية','error');
+          document.querySelectorAll('.voice-msg button i').forEach(function(i){ i.className = 'fas fa-play'; });
+        };
+      }
+      var audio = window._currentVoiceAudio;
+      var same = audio.getAttribute('data-src') === url;
+      if(same && !audio.paused){
+        audio.pause();
+        btn.innerHTML = '<i class="fas fa-play"></i>';
+        return;
+      }
+      document.querySelectorAll('.voice-msg button i').forEach(function(i){ i.className = 'fas fa-play'; });
+      audio.setAttribute('data-src', url);
+      audio.src = url;
+      var p = audio.play();
+      if(p && p.then){
+        p.then(function(){ btn.innerHTML = '<i class="fas fa-pause"></i>'; })
+         .catch(function(err){
+           console.error(err);
+           A.showToast && A.showToast('تعذر تشغيل الصوت — اضغط مرة أخرى','error');
+         });
+      } else {
+        btn.innerHTML = '<i class="fas fa-pause"></i>';
+      }
+    }catch(e){
+      console.error(e);
+      A.showToast && A.showToast('تعذر تشغيل الصوت','error');
+    }
+  };
+
+  /* ========== 3) CALLS — ensure rtdb + ICE + media attach ========== */
+  A._getIceServers = function(){
+    return {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun.cloudflare.com:3478' },
+        { urls: 'stun:stun.stunprotocol.org:3478' }
+      ],
+      iceCandidatePoolSize: 10
+    };
+  };
+
+  function ensureRtdb(){
+    try{ if(window.rtdb) return window.rtdb; }catch(e){}
+    return rtdbDb;
+  }
+
+  // Ensure remote audio/video elements exist and play
+  A._attachRemoteStream = function(stream){
+    if(!stream) return;
+    S.remoteStream = stream;
+    try{
+      var audio = document.getElementById('remote-audio');
+      if(!audio){
+        audio = document.createElement('audio');
+        audio.id = 'remote-audio';
+        audio.autoplay = true;
+        audio.playsInline = true;
+        audio.setAttribute('playsinline','');
+        audio.style.display = 'none';
+        document.body.appendChild(audio);
+      }
+      audio.srcObject = stream;
+      audio.muted = !!S._remoteMuted;
+      var ap = audio.play();
+      if(ap && ap.catch) ap.catch(function(){});
+
+      var hasVideo = false;
+      try{ hasVideo = stream.getVideoTracks && stream.getVideoTracks().length > 0; }catch(e){}
+      var video = document.getElementById('remote-video');
+      if(hasVideo && video){
+        video.srcObject = stream;
+        video.style.display = '';
+        var vp = video.play();
+        if(vp && vp.catch) vp.catch(function(){});
+      }
+      var localVideo = document.getElementById('local-video');
+      if(localVideo && S.localStream){
+        localVideo.srcObject = S.localStream;
+        localVideo.muted = true;
+        var lp = localVideo.play();
+        if(lp && lp.catch) lp.catch(function(){});
+      }
+    }catch(e){ console.warn('attach remote', e); }
+  };
+
+  // Soft-wrap startPrivateCall to use ensured rtdb when possible
+  if(typeof A.startPrivateCall === 'function' && !A._startCallWrapped){
+    var _spc = A.startPrivateCall.bind(A);
+    A.startPrivateCall = async function(targetUserId, mediaMode){
+      try{
+        // unlock audio context on user gesture
+        try{
+          var a = document.getElementById('remote-audio');
+          if(a){ a.muted = false; var p=a.play(); if(p&&p.catch) p.catch(function(){}); }
+        }catch(e){}
+        if(typeof rtdb === 'undefined' && window.rtdb){
+          try{ window.rtdb = ensureRtdb(); }catch(e){}
+        }
+      }catch(e){}
+      return _spc(targetUserId, mediaMode);
+    };
+    A._startCallWrapped = 1;
+  }
+
+  if(typeof A.acceptCall === 'function' && !A._acceptCallWrapped){
+    var _ac = A.acceptCall.bind(A);
+    A.acceptCall = async function(callId){
+      try{
+        // user gesture: unlock audio
+        try{
+          var a = document.getElementById('remote-audio');
+          if(!a){
+            a = document.createElement('audio');
+            a.id = 'remote-audio';
+            a.autoplay = true;
+            a.playsInline = true;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+          }
+          var p = a.play();
+          if(p && p.catch) p.catch(function(){});
+        }catch(e){}
+      }catch(e){}
+      return _ac(callId);
+    };
+    A._acceptCallWrapped = 1;
+  }
+
+  // Listener safety for incoming calls (if original missed)
+  try{
+    if(S.user && S.user.uid && !A._incomingCallListenerFix){
+      var path = 'incomingCalls/'+S.user.uid;
+      onValue(dbRef(rtdbDb, path), function(snap){
+        try{
+          var val = snap.val();
+          if(!val || typeof val !== 'object') return;
+          Object.keys(val).forEach(function(cid){
+            var c = val[cid];
+            if(!c || c.status !== 'calling') return;
+            if(S.currentCall) return;
+            if(S._shownIncoming === cid) return;
+            S._shownIncoming = cid;
+            if(typeof A.showIncomingCall === 'function'){
+              A.showIncomingCall(cid, c);
+            } else if(typeof A._showIncomingCallUI === 'function'){
+              A._showIncomingCallUI(cid, c);
+            }
+          });
+        }catch(e){ console.warn(e); }
+      });
+      A._incomingCallListenerFix = 1;
+    }
+  }catch(e){}
+
+  console.log('YMM SHARE+VOICE+CALLS FIX ready — base:', A.getAppBaseUrl());
+});
 </script>
 
 </body>
