@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#25D366" />
+  <title>إشعارات YMM مثل التطبيقات</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #0b141a; --card: #1f2c34; --border: #2a3942;
+      --text: #e9edef; --muted: #8696a0; --accent: #25D366; --accent2: #128C7E;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; min-height: 100dvh; padding: 16px;
+    }
+    .wrap { max-width: 480px; margin: 0 auto; }
+    header { text-align: center; padding: 20px 8px 12px; }
+    .wa-icon {
+      width: 76px; height: 76px; border-radius: 50%;
+      background: linear-gradient(145deg, #25D366, #128C7E);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px; font-size: 34px; color: #fff;
+      box-shadow: 0 10px 28px rgba(37,211,102,.35);
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 6px; }
+    .sub { color: var(--muted); font-size: .85rem; line-height: 1.55; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px; margin-bottom: 12px;
+    }
+    .card h2 { font-size: .92rem; margin-bottom: 10px; display: flex; gap: 8px; align-items: center; }
+    .row {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 8px; flex-wrap: wrap; background: rgba(0,0,0,.22);
+      border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: .88rem;
+    }
+    .badge {
+      padding: 3px 10px; border-radius: 999px; font-size: .75rem; font-weight: 700;
+    }
+    .ok { background: rgba(37,211,102,.18); color: #25D366; }
+    .bad { background: rgba(239,68,68,.18); color: #f87171; }
+    .warn { background: rgba(245,158,11,.18); color: #fbbf24; }
+    .btn {
+      width: 100%; border: 0; border-radius: 10px; padding: 12px;
+      font-weight: 700; font-size: .9rem; cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-bottom: 8px;
+    }
+    .btn:active { opacity: .9; }
+    .btn-main { background: linear-gradient(135deg,#25D366,#128C7E); color: #07211a; }
+    .btn-sec { background: #2a3942; color: var(--text); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    label.f { display: block; font-size: .78rem; color: var(--muted); margin-bottom: 4px; }
+    input, textarea {
+      width: 100%; background: #0b141a; border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px; color: var(--text); font-family: inherit;
+      font-size: .92rem; margin-bottom: 8px; outline: none;
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    .token-box {
+      font-size: .68rem; word-break: break-all; direction: ltr; text-align: left;
+      background: #0b141a; border-radius: 8px; padding: 8px; color: var(--muted);
+      max-height: 72px; overflow: auto; margin-bottom: 8px;
+    }
+    .steps { font-size: .8rem; color: var(--muted); line-height: 1.7; padding-right: 6px; }
+    .steps li { margin-bottom: 4px; }
+    .log {
+      font-size: .72rem; color: var(--muted); background: #0b141a; border-radius: 8px;
+      padding: 8px; max-height: 140px; overflow: auto; direction: ltr; text-align: left;
+      font-family: ui-monospace, monospace;
+    }
+    .log div { margin-bottom: 3px; }
+    .hint { font-size: .75rem; color: var(--muted); line-height: 1.5; margin-top: 6px; }
+    footer { text-align: center; color: var(--muted); font-size: .7rem; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="wa-icon"><i class="fas fa-bell"></i></div>
+      <h1>إشعارات مثل واتساب</h1>
+      <p class="sub">إشعارات نظام حقيقية عبر Firebase Cloud Messaging — تظهر في شريط الجهاز حتى لو التطبيق في الخلفية (وبعد الإغلاق على كثير من الأجهزة عند تفعيل الـ Service Worker).</p>
+    </header>
+
+    <div class="card">
+      <h2><i class="fas fa-signal" style="color:#25D366"></i> الحالة</h2>
+      <div class="row"><span>دعم المتصفح</span><span id="bSupport" class="badge warn">...</span></div>
+      <div class="row"><span>إذن الإشعارات</span><span id="bPerm" class="badge warn">...</span></div>
+      <div class="row"><span>Service Worker</span><span id="bSw" class="badge warn">...</span></div>
+      <div class="row"><span>رمز الجهاز (FCM Token)</span><span id="bToken" class="badge warn">...</span></div>
+      <button type="button" class="btn btn-main" id="btnActivate" onclick="activatePush()">
+        <i class="fas fa-bolt"></i> تفعيل إشعارات الجهاز
+      </button>
+      <p class="hint">يجب فتح الموقع عبر <b>HTTPS</b> (مثل GitHub Pages). ضع ملف <code>firebase-messaging-sw.js</code> في نفس مجلد الموقع.</p>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-key" style="color:#fbbf24"></i> مفتاح VAPID (من Firebase)</h2>
+      <p class="hint" style="margin-bottom:8px">Firebase Console → Project settings → Cloud Messaging → Web Push certificates → Key pair</p>
+      <label class="f">مفتاح Web Push (VAPID public key)</label>
+      <input type="text" id="vapidKey" value="BNRnofzz2yfWDuWndnxE16SGwZRZ0gffwH9J2Ijcv-wyUL5sUFHbdKDLR1B1XajYpcxsRG4-Mwc6ww49tr3JRlw" placeholder="الصق مفتاح VAPID هنا" />
+      <button type="button" class="btn btn-sec" onclick="saveVapid()">حفظ المفتاح</button>
+      <div class="token-box" id="tokenView">لم يُسجَّل رمز بعد</div>
+      <button type="button" class="btn btn-sec" onclick="copyToken()">نسخ الرمز</button>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-vial" style="color:#60a5fa"></i> تجربة محلية (والتطبيق مفتوح)</h2>
+      <label class="f">العنوان</label>
+      <input id="tTitle" value="رسالة جديدة" />
+      <label class="f">النص</label>
+      <textarea id="tBody">مرحباً — هذا إشعار تجريبي مثل واتساب</textarea>
+      <button type="button" class="btn btn-main" onclick="localTest()"><i class="fas fa-bell"></i> إشعار فوري</button>
+      <button type="button" class="btn btn-sec" onclick="setTimeout(localTest,5000)"><i class="fas fa-clock"></i> بعد 5 ثوانٍ (صغّر الصفحة)</button>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-info-circle" style="color:#8696a0"></i> كيف تصل إشعارات مثل واتساب؟</h2>
+      <ol class="steps">
+        <li>تفعيل الإذن + تسجيل الـ Token من هذه الصفحة.</li>
+        <li>حفظ الـ Token في Firestore للمستخدم (مثل حقل <code>fcmTokens</code>).</li>
+        <li>عند رسالة جديدة: خادم أو Cloud Function يرسل عبر FCM إلى الرمز.</li>
+        <li>الجهاز يستقبل الإشعار عبر <code>firebase-messaging-sw.js</code> ويظهر في شريط النظام.</li>
+      </ol>
+      <p class="hint">بدون خطوة الإرسال من السيرفر، الإشعار لن يصل والتطبيق مغلق — هذا طبيعي (واتساب أيضاً يعتمد على خوادمه).</p>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-terminal"></i> السجل</h2>
+      <div class="log" id="log"></div>
+    </div>
+    <footer>YMM Push · FCM + Service Worker</footer>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+  <script>
+    const FB = {
+      apiKey: 'AIzaSyDTsnFVRRas32lIdqKM8TnglNW1-VYTspQ',
+      authDomain: 'ymmai-59c6c.firebaseapp.com',
+      projectId: 'ymmai-59c6c',
+      storageBucket: 'ymmai-59c6c.firebasestorage.app',
+      messagingSenderId: '598941300583',
+      appId: '1:598941300583:web:3aa6c28b51f8d6f9ffa1c2'
+    };
+
+    let messaging = null;
+    let currentToken = '';
+
+    function log(m) {
+      const el = document.getElementById('log');
+      el.innerHTML = '<div>[' + new Date().toLocaleTimeString('ar-EG') + '] ' + m + '</div>' + el.innerHTML;
+    }
+    function setBadge(id, text, cls) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'badge ' + cls;
+    }
+
+    function loadVapid() {
+      var defKey = 'BNRnofzz2yfWDuWndnxE16SGwZRZ0gffwH9J2Ijcv-wyUL5sUFHbdKDLR1B1XajYpcxsRG4-Mwc6ww49tr3JRlw';
+      var saved = localStorage.getItem('ymm_vapid_key') || '';
+      document.getElementById('vapidKey').value = saved || defKey;
+      if (!saved && defKey) localStorage.setItem('ymm_vapid_key', defKey);
+    }
+    function saveVapid() {
+      const v = document.getElementById('vapidKey').value.trim();
+      localStorage.setItem('ymm_vapid_key', v);
+      log('تم حفظ VAPID');
+      alert('تم الحفظ');
+    }
+
+    function refreshUI() {
+      const support = ('Notification' in window) && ('serviceWorker' in navigator);
+      setBadge('bSupport', support ? 'مدعوم' : 'غير مدعوم', support ? 'ok' : 'bad');
+      if (!('Notification' in window)) {
+        setBadge('bPerm', '—', 'bad');
+      } else {
+        const p = Notification.permission;
+        setBadge('bPerm', p === 'granted' ? 'مسموح' : p === 'denied' ? 'مرفوض' : 'لم يُطلب', p === 'granted' ? 'ok' : p === 'denied' ? 'bad' : 'warn');
+      }
+      setBadge('bToken', currentToken ? 'مسجّل' : 'غير مسجّل', currentToken ? 'ok' : 'warn');
+    }
+
+    async function ensureSW() {
+      if (!('serviceWorker' in navigator)) throw new Error('لا يوجد Service Worker');
+      const reg = await navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' });
+      await navigator.serviceWorker.ready;
+      setBadge('bSw', 'نشط', 'ok');
+      log('Service Worker جاهز');
+      return reg;
+    }
+
+    async function activatePush() {
+      try {
+        if (!('Notification' in window)) {
+          alert('المتصفح لا يدعم الإشعارات');
+          return;
+        }
+        const perm = await Notification.requestPermission();
+        refreshUI();
+        if (perm !== 'granted') {
+          alert('يجب السماح بالإشعارات من إعدادات المتصفح');
+          return;
+        }
+        const reg = await ensureSW();
+        if (!firebase.apps.length) firebase.initializeApp(FB);
+        messaging = firebase.messaging();
+
+        const vapid = (document.getElementById('vapidKey').value || localStorage.getItem('ymm_vapid_key') || '').trim();
+        if (!vapid) {
+          log('أدخل مفتاح VAPID أولاً من Firebase Console');
+          alert('الصق مفتاح VAPID من إعدادات Firebase ثم اضغط حفظ، ثم فعّل مرة أخرى.\n\nFirebase → Project settings → Cloud Messaging → Web Push certificates');
+          return;
+        }
+
+        const token = await messaging.getToken({
+          vapidKey: vapid,
+          serviceWorkerRegistration: reg
+        });
+        if (!token) throw new Error('لم يُرجع FCM رمزاً');
+        currentToken = token;
+        localStorage.setItem('ymm_fcm_token', token);
+        document.getElementById('tokenView').textContent = token;
+        setBadge('bToken', 'مسجّل', 'ok');
+        log('Token: ' + token.slice(0, 28) + '...');
+
+        messaging.onMessage(function (payload) {
+          log('رسالة أمامية: ' + JSON.stringify(payload).slice(0, 120));
+          const n = payload.notification || {};
+          const d = payload.data || {};
+          localTest(n.title || d.title || 'YMM', n.body || d.body || '', true);
+        });
+
+        alert('تم التفعيل بنجاح ✓\nاحفظ الرمز في حساب المستخدم على Firestore لإرسال إشعارات لاحقاً.');
+      } catch (e) {
+        console.error(e);
+        setBadge('bSw', 'خطأ', 'bad');
+        log('خطأ: ' + (e.message || e));
+        alert('فشل التفعيل: ' + (e.message || e));
+      }
+      refreshUI();
+    }
+
+    function copyToken() {
+      const t = currentToken || localStorage.getItem('ymm_fcm_token') || '';
+      if (!t) return alert('لا يوجد رمز');
+      navigator.clipboard.writeText(t).then(function () { alert('تم النسخ'); }).catch(function () {
+        prompt('انسخ الرمز:', t);
+      });
+    }
+
+    function localTest(title, body, force) {
+      if (Notification.permission !== 'granted') {
+        alert('فعّل الإذن أولاً');
+        return;
+      }
+      title = title || document.getElementById('tTitle').value || 'YMM';
+      body = body || document.getElementById('tBody').value || '';
+      const n = new Notification(title, {
+        body: body,
+        icon: undefined,
+        tag: 'ymm-local',
+        renotify: true,
+        requireInteraction: false
+      });
+      n.onclick = function () { window.focus(); n.close(); };
+      log('إشعار محلي: ' + title);
+    }
+
+    // استعادة
+    loadVapid();
+    currentToken = localStorage.getItem('ymm_fcm_token') || '';
+    if (currentToken) document.getElementById('tokenView').textContent = currentToken;
+    refreshUI();
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration('./firebase-messaging-sw.js').then(function (r) {
+        setBadge('bSw', r ? 'مسجّل' : 'غير مسجّل', r ? 'ok' : 'warn');
+      });
+    } else setBadge('bSw', 'غير مدعوم', 'bad');
+    log('جاهز — لإشعارات الخلفية يلزم VAPID + إرسال من السيرفر/Cloud Functions');
+  </script>
+</body>
+</html>
