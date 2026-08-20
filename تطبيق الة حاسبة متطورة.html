@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الآلة الحاسبة الخارقة | Super Math Station</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        dark: '#1e1e2e',
+                        surface: '#313244',
+                        primary: '#89b4fa',
+                        secondary: '#f38ba8',
+                        accent: '#a6e3a1',
+                        light: {
+                            bg: '#eff1f5',
+                            surface: '#e6e9ef',
+                            text: '#4c4f69'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-color: #11111b;
+            --text-color: #cdd6f4;
+            --glass-bg: rgba(49, 50, 68, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --key-bg: rgba(255, 255, 255, 0.05);
+            --key-hover: rgba(255, 255, 255, 0.1);
+        }
+
+        body.light-mode {
+            --bg-color: #eff1f5;
+            --text-color: #4c4f69;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --key-bg: rgba(0, 0, 0, 0.05);
+            --key-hover: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: background 0.3s;
+        }
+
+        .btn-calc {
+            transition: all 0.1s ease;
+            background-color: var(--key-bg);
+        }
+        .btn-calc:hover {
+            background-color: var(--key-hover);
+        }
+        .btn-calc:active {
+            transform: scale(0.95);
+        }
+
+        /* Assistants & Iframes */
+        .assistant-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: #000;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        .frame-wrapper {
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: -40px;
+            background: #000;
+        }
+        .bot-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        .bottom-shield {
+            position: relative;
+            height: 60px;
+            background-color: black;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 100;
+            direction: rtl;
+            font-family: 'Cairo', sans-serif;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+            border-top: 1px solid #333;
+        }
+        .official-link {
+            background-color: #ffffff;
+            color: #000000;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Sketchpad */
+        .color-btn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+        .color-btn.active { border-color: white; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-2 md:p-4">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-5xl glass-panel rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[95vh] md:h-[800px]">
+        
+        <!-- Sidebar Navigation -->
+        <div class="bg-black/20 w-full md:w-20 flex md:flex-col justify-around md:justify-start items-center p-2 md:py-8 border-l border-gray-500/10 z-10 order-2 md:order-1">
+            <button onclick="switchTab('calc')" class="nav-btn p-3 rounded-xl hover:bg-white/10 text-primary mb-2 transition-colors active" id="btn-calc" title="الحاسبة">
+                <i class="fa-solid fa-calculator text-xl"></i>
+            </button>
+            <button onclick="switchTab('sketch')" class="nav-btn p-3 rounded-xl hover:bg-white/10 text-gray-400 mb-2 transition-colors" id="btn-sketch" title="رسم حر">
+                <i class="fa-solid fa-paintbrush text-xl"></i>
+            </button>
+            <button onclick="switchTab('graph')" class="nav-btn p-3 rounded-xl hover:bg-white/10 text-gray-400 mb-2 transition-colors" id="btn-graph" title="الرسم البياني">
+                <i class="fa-solid fa-chart-line text-xl"></i>
+            </button>
+            <button onclick="switchTab('tools')" class="nav-btn p-3 rounded-xl hover:bg-white/10 text-gray-400 mb-2 transition-colors" id="btn-tools" title="الأدوات">
+                <i class="fa-solid fa-toolbox text-xl"></i>
+            </button>
+            <button onclick="switchTab('assistant')" class="nav-btn p-3 rounded-xl hover:bg-white/10 text-gray-400 mb-2 transition-colors" id="btn-assistant" title="المساعد">
+                <i class="fa-solid fa-robot text-xl"></i>
+            </button>
+             <div class="md:mt-auto">
+                <button onclick="switchTab('settings')" class="nav-btn p-3 rounded-xl hover:bg-white/10 text-gray-400 mb-2 transition-colors" id="btn-settings" title="الإعدادات">
+                    <i class="fa-solid fa-gear text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-1 p-4 md:p-6 overflow-hidden relative order-1 md:order-2 h-full">
+            
+            <!-- 1. Calculator Section -->
+            <div id="tab-calc" class="h-full flex flex-col overflow-y-auto">
+                <!-- Display -->
+                <div class="bg-black/10 p-4 rounded-xl mb-4 text-right flex flex-col justify-end h-32 border border-gray-500/20 shrink-0">
+                    <div id="history-preview" class="text-gray-400 text-sm h-6 overflow-hidden"></div>
+                    <input type="text" id="display" class="bg-transparent text-4xl w-full text-right font-mono outline-none" style="color: inherit;" placeholder="0" readonly>
+                </div>
+
+                <!-- Mode Toggle & History Toggle -->
+                <div class="flex justify-between mb-4 shrink-0">
+                    <div class="flex gap-2">
+                        <button onclick="toggleAngleMode()" id="angle-mode" class="text-xs px-3 py-1 rounded-full bg-surface/50 hover:bg-surface text-primary font-bold transition">RAD</button>
+                    </div>
+                    <button onclick="toggleHistoryPanel()" class="text-xs px-3 py-1 rounded-full bg-surface/50 hover:bg-surface transition" data-i18n="history_btn"><i class="fa-solid fa-clock-rotate-left"></i> السجل</button>
+                </div>
+
+                <!-- Keypad -->
+                <div class="grid grid-cols-5 gap-2 flex-1 min-h-0">
+                    <!-- Row 1 -->
+                    <button onclick="inputFunc('sin')" class="btn-calc rounded-lg font-bold text-sm text-secondary">sin</button>
+                    <button onclick="inputFunc('cos')" class="btn-calc rounded-lg font-bold text-sm text-secondary">cos</button>
+                    <button onclick="inputFunc('tan')" class="btn-calc rounded-lg font-bold text-sm text-secondary">tan</button>
+                    <button onclick="inputToken('(')" class="btn-calc rounded-lg font-bold opacity-70">(</button>
+                    <button onclick="inputToken(')')" class="btn-calc rounded-lg font-bold opacity-70">)</button>
+                    <!-- Row 2 -->
+                    <button onclick="inputFunc('log')" class="btn-calc rounded-lg font-bold text-sm text-secondary">log</button>
+                    <button onclick="inputFunc('ln')" class="btn-calc rounded-lg font-bold text-sm text-secondary">ln</button>
+                    <button onclick="inputToken('^')" class="btn-calc rounded-lg font-bold text-sm text-secondary">xʸ</button>
+                    <button onclick="inputFunc('sqrt')" class="btn-calc rounded-lg font-bold text-sm text-secondary">√</button>
+                    <button onclick="clearDisplay()" class="btn-calc bg-red-500/20 text-red-500 rounded-lg font-bold">AC</button>
+                    <!-- Row 3 -->
+                    <button onclick="inputConst('PI')" class="btn-calc rounded-lg font-bold text-sm text-secondary">π</button>
+                    <button onclick="inputConst('E')" class="btn-calc rounded-lg font-bold text-sm text-secondary">e</button>
+                    <button onclick="inputToken('%')" class="btn-calc rounded-lg font-bold text-sm text-secondary">%</button>
+                    <button onclick="deleteChar()" class="btn-calc rounded-lg font-bold text-orange-400"><i class="fa-solid fa-delete-left"></i></button>
+                    <button onclick="inputToken('/')" class="btn-calc bg-primary/20 text-primary rounded-lg font-bold text-lg">÷</button>
+                    <!-- Row 4 -->
+                    <button onclick="inputNum('7')" class="btn-calc rounded-lg font-bold text-xl">7</button>
+                    <button onclick="inputNum('8')" class="btn-calc rounded-lg font-bold text-xl">8</button>
+                    <button onclick="inputNum('9')" class="btn-calc rounded-lg font-bold text-xl">9</button>
+                    <button onclick="inputToken('*')" class="btn-calc bg-primary/20 text-primary rounded-lg font-bold text-lg">×</button>
+                    <button onclick="inputFunc('abs')" class="btn-calc rounded-lg font-bold text-sm text-secondary">|x|</button>
+                    <!-- Row 5 -->
+                    <button onclick="inputNum('4')" class="btn-calc rounded-lg font-bold text-xl">4</button>
+                    <button onclick="inputNum('5')" class="btn-calc rounded-lg font-bold text-xl">5</button>
+                    <button onclick="inputNum('6')" class="btn-calc rounded-lg font-bold text-xl">6</button>
+                    <button onclick="inputToken('-')" class="btn-calc bg-primary/20 text-primary rounded-lg font-bold text-lg">-</button>
+                    <button onclick="inputFunc('fact')" class="btn-calc rounded-lg font-bold text-sm text-secondary">n!</button>
+                    <!-- Row 6 -->
+                    <button onclick="inputNum('1')" class="btn-calc rounded-lg font-bold text-xl">1</button>
+                    <button onclick="inputNum('2')" class="btn-calc rounded-lg font-bold text-xl">2</button>
+                    <button onclick="inputNum('3')" class="btn-calc rounded-lg font-bold text-xl">3</button>
+                    <button onclick="inputToken('+')" class="btn-calc bg-primary/20 text-primary rounded-lg font-bold text-lg">+</button>
+                    <button onclick="inputToken('Ans')" class="btn-calc rounded-lg font-bold text-xs opacity-70">Ans</button>
+                    <!-- Row 7 -->
+                    <button onclick="inputNum('00')" class="btn-calc rounded-lg font-bold text-xl">00</button>
+                    <button onclick="inputNum('0')" class="btn-calc rounded-lg font-bold text-xl">0</button>
+                    <button onclick="inputToken('.')" class="btn-calc rounded-lg font-bold text-xl">.</button>
+                    <button onclick="calculate()" class="btn-calc bg-accent text-black rounded-lg font-bold text-xl col-span-2">=</button>
+                </div>
+                
+                <!-- History Panel (Absolute) -->
+                <div id="history-panel" class="absolute top-0 right-0 w-64 h-full bg-gray-900 border-l border-gray-600 transform translate-x-full transition-transform duration-300 z-20 p-4 overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-600 pb-2">
+                        <h3 class="font-bold text-white" data-i18n="history_title">السجل</h3>
+                        <button onclick="toggleHistoryPanel()" class="text-red-400"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="history-list" class="space-y-2">
+                        <div class="text-center text-gray-500 text-sm mt-10" data-i18n="no_history">لا يوجد سجل</div>
+                    </div>
+                    <button onclick="clearHistory()" class="w-full mt-4 bg-red-500/20 text-red-400 py-2 rounded hover:bg-red-500/30 text-sm" data-i18n="clear_history">مسح السجل</button>
+                </div>
+            </div>
+
+            <!-- 2. Sketchpad Section (NEW) -->
+            <div id="tab-sketch" class="h-full hidden flex flex-col">
+                <div class="flex justify-between items-center mb-2 px-2 bg-black/10 rounded-lg p-2">
+                    <div class="flex gap-2 items-center">
+                        <div class="color-btn bg-white" onclick="setStrokeColor('white', this)"></div>
+                        <div class="color-btn bg-red-400" onclick="setStrokeColor('#f87171', this)"></div>
+                        <div class="color-btn bg-blue-400" onclick="setStrokeColor('#60a5fa', this)"></div>
+                        <div class="color-btn bg-green-400 active" onclick="setStrokeColor('#4ade80', this)"></div>
+                        <div class="h-6 w-px bg-gray-600 mx-1"></div>
+                        <input type="range" min="1" max="20" value="2" class="w-20" onchange="setLineWidth(this.value)">
+                    </div>
+                    <div class="flex gap-2">
+                         <button onclick="toggleGrid()" class="text-gray-400 hover:text-white" title="شبكة"><i class="fa-solid fa-border-all"></i></button>
+                        <button onclick="setEraser()" class="text-gray-400 hover:text-white" title="ممحاة"><i class="fa-solid fa-eraser"></i></button>
+                        <button onclick="clearSketch()" class="text-red-400 hover:text-red-300" title="مسح الكل"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="flex-1 relative bg-[#181825] rounded-xl overflow-hidden border border-gray-600 touch-none" id="sketch-container">
+                    <canvas id="sketchCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+                </div>
+            </div>
+
+            <!-- 3. Graphing Section -->
+            <div id="tab-graph" class="h-full flex flex-col hidden overflow-y-auto">
+                <div class="flex flex-col gap-4 h-full">
+                    <div class="bg-black/10 p-4 rounded-xl shrink-0">
+                        <label class="block text-sm opacity-70 mb-2 dir-ltr text-left">f(x) = </label>
+                        <div class="flex gap-2">
+                            <input type="text" id="graph-input" class="flex-1 bg-black/20 border border-gray-500/30 rounded px-3 py-2 font-mono" style="color: inherit;" placeholder="Math.sin(x) * x" value="Math.sin(x)">
+                            <button onclick="drawGraph()" class="bg-primary text-black px-4 py-2 rounded font-bold hover:bg-blue-400" data-i18n="draw">رسم</button>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative border border-gray-500/30 rounded-xl overflow-hidden bg-[#181825] min-h-[300px]">
+                        <canvas id="graphCanvas" class="w-full h-full block"></canvas>
+                        <div class="absolute bottom-4 left-4 flex gap-2">
+                            <button onclick="zoomGraph(0.8)" class="bg-white/10 p-2 rounded text-white hover:bg-white/20"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                            <button onclick="zoomGraph(1.2)" class="bg-white/10 p-2 rounded text-white hover:bg-white/20"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                            <button onclick="resetGraph()" class="bg-white/10 p-2 rounded text-white hover:bg-white/20"><i class="fa-solid fa-compress"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Tools Hub (NEW STRUCTURE) -->
+            <div id="tab-tools" class="h-full hidden overflow-y-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full content-start">
+                    
+                    <!-- Tool Selection Cards -->
+                    <div class="col-span-full mb-4 flex gap-2 justify-center border-b border-gray-700 pb-4">
+                        <button onclick="showTool('converter')" class="tool-tab-btn px-4 py-2 rounded-lg bg-surface text-primary font-bold" data-tool="converter" data-i18n="converter">محول الوحدات</button>
+                        <button onclick="showTool('solver')" class="tool-tab-btn px-4 py-2 rounded-lg bg-black/20 opacity-70" data-tool="solver" data-i18n="solver">المعادلات</button>
+                        <button onclick="showTool('geometry')" class="tool-tab-btn px-4 py-2 rounded-lg bg-black/20 opacity-70" data-tool="geometry" data-i18n="geometry">الهندسة</button>
+                    </div>
+
+                    <!-- Converter Tool -->
+                    <div id="tool-converter" class="tool-content col-span-full max-w-lg mx-auto w-full">
+                        <h2 class="text-xl font-bold text-center mb-4" data-i18n="unit_converter">محول الوحدات</h2>
+                        <div class="bg-black/10 p-6 rounded-xl space-y-4 border border-gray-500/20">
+                             <div class="grid grid-cols-4 gap-2 mb-4">
+                                <button onclick="setConvType('length')" class="conv-type-btn bg-primary text-black p-2 rounded text-sm font-bold" data-type="length" data-i18n="length">طول</button>
+                                <button onclick="setConvType('weight')" class="conv-type-btn bg-black/20 text-gray-400 p-2 rounded text-sm" data-type="weight" data-i18n="weight">وزن</button>
+                                <button onclick="setConvType('temp')" class="conv-type-btn bg-black/20 text-gray-400 p-2 rounded text-sm" data-type="temp" data-i18n="temp">حرارة</button>
+                                <button onclick="setConvType('data')" class="conv-type-btn bg-black/20 text-gray-400 p-2 rounded text-sm" data-type="data" data-i18n="data">بيانات</button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <select id="unit-from" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 mt-1" onchange="convert()"></select>
+                                    <input type="number" id="conv-input" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 mt-2" placeholder="0" oninput="convert()">
+                                </div>
+                                <div>
+                                    <select id="unit-to" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 mt-1" onchange="convert()"></select>
+                                    <input type="text" id="conv-result" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 text-accent font-bold mt-2" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Solver Tool -->
+                    <div id="tool-solver" class="tool-content col-span-full max-w-lg mx-auto w-full hidden">
+                        <h2 class="text-xl font-bold text-center mb-4" data-i18n="quadratic_solver">حل المعادلات التربيعية</h2>
+                        <p class="text-center opacity-70 dir-ltr mb-4">ax² + bx + c = 0</p>
+                        <div class="bg-black/10 p-6 rounded-xl space-y-4 border border-gray-500/20">
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div><label class="text-accent font-bold">a</label><input type="number" id="solver-a" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 text-center" placeholder="1"></div>
+                                <div><label class="text-accent font-bold">b</label><input type="number" id="solver-b" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 text-center" placeholder="-3"></div>
+                                <div><label class="text-accent font-bold">c</label><input type="number" id="solver-c" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 text-center" placeholder="2"></div>
+                            </div>
+                            <button onclick="solveQuadratic()" class="w-full bg-secondary text-black font-bold py-2 rounded hover:bg-pink-400 mt-4" data-i18n="solve_btn">حـل المعادلة</button>
+                            <div id="solver-result" class="bg-black/20 p-4 rounded border border-gray-500/30 min-h-[80px] text-center flex items-center justify-center">...</div>
+                        </div>
+                    </div>
+
+                    <!-- Geometry Tool (NEW) -->
+                    <div id="tool-geometry" class="tool-content col-span-full max-w-lg mx-auto w-full hidden">
+                        <h2 class="text-xl font-bold text-center mb-4" data-i18n="geometry_calc">حاسبة الهندسة</h2>
+                        <div class="bg-black/10 p-6 rounded-xl space-y-4 border border-gray-500/20">
+                            <select id="geo-shape" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 mb-4" onchange="updateGeoInputs()">
+                                <option value="circle" data-i18n="circle">دائرة (مساحة & محيط)</option>
+                                <option value="rect" data-i18n="rectangle">مستطيل (مساحة & محيط)</option>
+                                <option value="triangle" data-i18n="triangle">مثلث (مساحة)</option>
+                            </select>
+                            
+                            <div id="geo-inputs" class="space-y-2">
+                                <!-- Dynamic inputs -->
+                            </div>
+                            
+                            <button onclick="calcGeo()" class="w-full bg-accent text-black font-bold py-2 rounded hover:bg-green-400 mt-4" data-i18n="calc_btn">احسب</button>
+                            <div id="geo-result" class="bg-black/20 p-4 rounded border border-gray-500/30 min-h-[60px] text-center flex flex-col justify-center">...</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 5. Settings Section (NEW) -->
+            <div id="tab-settings" class="h-full hidden overflow-y-auto">
+                <div class="max-w-md mx-auto mt-6">
+                    <h2 class="text-2xl font-bold text-center mb-8" data-i18n="settings_title">الإعدادات</h2>
+                    
+                    <div class="bg-black/10 p-6 rounded-xl space-y-6 border border-gray-500/20">
+                        
+                        <!-- Theme -->
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-500/20">
+                            <div>
+                                <h3 class="font-bold" data-i18n="appearance">المظهر</h3>
+                                <p class="text-xs opacity-60" data-i18n="appearance_desc">التبديل بين الوضع الليلي والنهاري</p>
+                            </div>
+                            <button onclick="toggleTheme()" class="bg-surface px-4 py-2 rounded-lg border border-gray-500/30">
+                                <i id="theme-icon" class="fa-solid fa-moon"></i>
+                            </button>
+                        </div>
+
+                        <!-- Language -->
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-500/20">
+                            <div>
+                                <h3 class="font-bold" data-i18n="language">اللغة</h3>
+                                <p class="text-xs opacity-60" data-i18n="language_desc">العربية / English</p>
+                            </div>
+                            <button onclick="toggleLang()" class="bg-surface px-4 py-2 rounded-lg border border-gray-500/30 font-bold" id="lang-btn">EN</button>
+                        </div>
+
+                        <!-- Precision -->
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold" data-i18n="precision">دقة الأرقام</h3>
+                                <p class="text-xs opacity-60" data-i18n="precision_desc">عدد الخانات العشرية</p>
+                            </div>
+                            <input type="number" id="setting-precision" value="10" min="0" max="15" class="w-16 bg-black/20 border border-gray-500/30 rounded p-1 text-center" onchange="updateSettings()">
+                        </div>
+
+                    </div>
+                    
+                    <div class="text-center mt-8 opacity-40 text-sm">
+                        v2.0 - Super Math Station
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Assistant Section -->
+            <div id="tab-assistant" class="h-full hidden">
+                <div class="assistant-container">
+                    <div class="frame-wrapper">
+                        <iframe id="myBot" src="https://agent.jotform.com/019bc1670021712f81670911c8b95c3f8a41" class="bot-frame" allow="microphone;"></iframe>
+                    </div>
+                    <div class="bottom-shield">
+                        <span class="made-by">جميع الحقوق محفوظة لدي YMM</span>
+                        <a href="https://www.socialcreator.com/youznet/?s=252563" target="_blank" class="official-link">موقع ymm</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Translations Dictionary ---
+        const translations = {
+            ar: {
+                calc: "الحاسبة", sketch: "رسم حر", graph: "الرسم البياني", tools: "الأدوات", assistant: "المساعد", settings: "الإعدادات",
+                history_btn: "السجل", history_title: "السجل", no_history: "لا يوجد سجل", clear_history: "مسح السجل",
+                draw: "رسم", converter: "المحول", solver: "المعادلات", geometry: "الهندسة",
+                unit_converter: "محول الوحدات", length: "طول", weight: "وزن", temp: "حرارة", data: "بيانات",
+                quadratic_solver: "حل المعادلات التربيعية", solve_btn: "حـل المعادلة",
+                geometry_calc: "حاسبة الهندسة", circle: "دائرة", rectangle: "مستطيل", triangle: "مثلث", calc_btn: "احسب",
+                settings_title: "الإعدادات", appearance: "المظهر", appearance_desc: "الوضع الليلي/النهاري",
+                language: "اللغة", language_desc: "العربية / English", precision: "الدقة", precision_desc: "الخانات العشرية"
+            },
+            en: {
+                calc: "Calc", sketch: "Sketch", graph: "Graph", tools: "Tools", assistant: "Assistant", settings: "Settings",
+                history_btn: "History", history_title: "History", no_history: "No History", clear_history: "Clear History",
+                draw: "Draw", converter: "Converter", solver: "Solver", geometry: "Geometry",
+                unit_converter: "Unit Converter", length: "Length", weight: "Weight", temp: "Temp", data: "Data",
+                quadratic_solver: "Quadratic Solver", solve_btn: "Solve",
+                geometry_calc: "Geometry Calculator", circle: "Circle", rectangle: "Rectangle", triangle: "Triangle", calc_btn: "Calculate",
+                settings_title: "Settings", appearance: "Appearance", appearance_desc: "Dark/Light Mode",
+                language: "Language", language_desc: "Arabic / English", precision: "Precision", precision_desc: "Decimal Places"
+            }
+        };
+
+        // --- Global Settings ---
+        let currentLang = 'ar';
+        let precision = 10;
+        let isDarkMode = true;
+
+        // --- Core Functions ---
+        function switchTab(tabId) {
+            ['calc', 'graph', 'converter', 'solver', 'assistant', 'settings', 'sketch', 'tools'].forEach(id => {
+                const el = document.getElementById(`tab-${id}`);
+                const btn = document.getElementById(`btn-${id}`);
+                if(el) el.classList.add('hidden');
+                if(btn) {
+                    btn.classList.remove('bg-white/10', 'text-primary');
+                    btn.classList.add('text-gray-400');
+                }
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-white/10', 'text-primary');
+                activeBtn.classList.remove('text-gray-400');
+            }
+
+            // Init specific tab logic
+            if(tabId === 'graph') setTimeout(initGraph, 100);
+            if(tabId === 'tools') {
+                showTool('converter'); // Default tool
+                initConverter();
+                updateGeoInputs();
+            }
+            if(tabId === 'sketch') setTimeout(initSketch, 100);
+        }
+
+        // --- Tools Logic ---
+        function showTool(toolId) {
+            ['converter', 'solver', 'geometry'].forEach(t => {
+                document.getElementById(`tool-${t}`).classList.add('hidden');
+                const btn = document.querySelector(`button[data-tool="${t}"]`);
+                btn.classList.remove('bg-surface', 'text-primary');
+                btn.classList.add('bg-black/20', 'opacity-70');
+            });
+            document.getElementById(`tool-${toolId}`).classList.remove('hidden');
+            const activeBtn = document.querySelector(`button[data-tool="${toolId}"]`);
+            activeBtn.classList.add('bg-surface', 'text-primary');
+            activeBtn.classList.remove('bg-black/20', 'opacity-70');
+        }
+
+        // --- Settings Logic ---
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('light-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.className = isDarkMode ? "fa-solid fa-moon" : "fa-solid fa-sun text-orange-500";
+            
+            // Re-draw grid if on graph or sketch
+            drawGraph(); 
+            // Sketch canvas handles its own background but maybe clear it? No, keep drawing.
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('lang-btn').innerText = currentLang === 'ar' ? 'EN' : 'عربي';
+            applyTranslations();
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(translations[currentLang][key]) {
+                    el.innerText = translations[currentLang][key];
+                }
+            });
+        }
+
+        function updateSettings() {
+            precision = parseInt(document.getElementById('setting-precision').value) || 10;
+        }
+
+        // --- Sketchpad Logic ---
+        let sketchCanvas, sCtx, painting = false;
+        let strokeColor = "#4ade80";
+        let lineWidth = 2;
+        let isEraser = false;
+
+        function initSketch() {
+            sketchCanvas = document.getElementById('sketchCanvas');
+            sCtx = sketchCanvas.getContext('2d');
+            resizeSketch();
+            window.addEventListener('resize', resizeSketch);
+            
+            // Mouse Events
+            sketchCanvas.addEventListener('mousedown', startPosition);
+            sketchCanvas.addEventListener('mouseup', finishedPosition);
+            sketchCanvas.addEventListener('mousemove', drawSketch);
+            
+            // Touch Events
+            sketchCanvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousedown", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                sketchCanvas.dispatchEvent(mouseEvent);
+            }, {passive: false});
+
+            sketchCanvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const mouseEvent = new MouseEvent("mouseup", {});
+                sketchCanvas.dispatchEvent(mouseEvent);
+            }, {passive: false});
+
+            sketchCanvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousemove", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                sketchCanvas.dispatchEvent(mouseEvent);
+            }, {passive: false});
+        }
+
+        function resizeSketch() {
+            if(!sketchCanvas) return;
+            const parent = sketchCanvas.parentElement;
+            sketchCanvas.width = parent.clientWidth;
+            sketchCanvas.height = parent.clientHeight;
+        }
+
+        function startPosition(e) {
+            painting = true;
+            drawSketch(e);
+        }
+
+        function finishedPosition() {
+            painting = false;
+            sCtx.beginPath();
+        }
+
+        function drawSketch(e) {
+            if (!painting) return;
+            
+            const rect = sketchCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            sCtx.lineWidth = lineWidth;
+            sCtx.lineCap = 'round';
+            sCtx.strokeStyle = isEraser ? (document.body.classList.contains('light-mode') ? '#181825' : '#181825') : strokeColor;
+            
+            // Eraser hack: just draw background color. Real eraser uses globalCompositeOperation
+            if(isEraser) sCtx.globalCompositeOperation = 'destination-out';
+            else sCtx.globalCompositeOperation = 'source-over';
+
+            sCtx.lineTo(x, y);
+            sCtx.stroke();
+            sCtx.beginPath();
+            sCtx.moveTo(x, y);
+        }
+
+        function setStrokeColor(color, btn) {
+            isEraser = false;
+            strokeColor = color;
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+        }
+
+        function setLineWidth(val) { lineWidth = val; }
+        function setEraser() { isEraser = true; }
+        function clearSketch() { sCtx.clearRect(0, 0, sketchCanvas.width, sketchCanvas.height); }
+        
+        let gridVisible = false;
+        function toggleGrid() {
+            gridVisible = !gridVisible;
+            const container = document.getElementById('sketch-container');
+            if(gridVisible) {
+                container.style.backgroundImage = "linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)";
+                container.style.backgroundSize = "20px 20px";
+            } else {
+                container.style.backgroundImage = "none";
+            }
+        }
+
+        // --- Geometry Tool Logic ---
+        function updateGeoInputs() {
+            const shape = document.getElementById('geo-shape').value;
+            const div = document.getElementById('geo-inputs');
+            div.innerHTML = '';
+            
+            if(shape === 'circle') {
+                div.innerHTML = `<label class="text-sm opacity-70">نصف القطر (r)</label>
+                                 <input type="number" id="g-r" class="w-full bg-black/20 border border-gray-500/30 rounded p-2" placeholder="Example: 5">`;
+            } else if (shape === 'rect') {
+                 div.innerHTML = `<label class="text-sm opacity-70">الطول (L)</label>
+                                 <input type="number" id="g-l" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 mb-2" placeholder="10">
+                                 <label class="text-sm opacity-70">العرض (W)</label>
+                                 <input type="number" id="g-w" class="w-full bg-black/20 border border-gray-500/30 rounded p-2" placeholder="5">`;
+            } else if (shape === 'triangle') {
+                 div.innerHTML = `<label class="text-sm opacity-70">القاعدة (b)</label>
+                                 <input type="number" id="g-b" class="w-full bg-black/20 border border-gray-500/30 rounded p-2 mb-2" placeholder="8">
+                                 <label class="text-sm opacity-70">الارتفاع (h)</label>
+                                 <input type="number" id="g-h" class="w-full bg-black/20 border border-gray-500/30 rounded p-2" placeholder="4">`;
+            }
+        }
+
+        function calcGeo() {
+            const shape = document.getElementById('geo-shape').value;
+            const resBox = document.getElementById('geo-result');
+            let res = "";
+
+            try {
+                if(shape === 'circle') {
+                    const r = parseFloat(document.getElementById('g-r').value);
+                    if(isNaN(r)) throw "Error";
+                    res = `المساحة = ${(Math.PI * r * r).toFixed(2)}<br>المحيط = ${(2 * Math.PI * r).toFixed(2)}`;
+                } else if(shape === 'rect') {
+                    const l = parseFloat(document.getElementById('g-l').value);
+                    const w = parseFloat(document.getElementById('g-w').value);
+                    if(isNaN(l) || isNaN(w)) throw "Error";
+                    res = `المساحة = ${(l * w).toFixed(2)}<br>المحيط = ${(2 * (l + w)).toFixed(2)}`;
+                } else if(shape === 'triangle') {
+                    const b = parseFloat(document.getElementById('g-b').value);
+                    const h = parseFloat(document.getElementById('g-h').value);
+                    if(isNaN(b) || isNaN(h)) throw "Error";
+                    res = `المساحة = ${(0.5 * b * h).toFixed(2)}`;
+                }
+            } catch(e) {
+                res = "الرجاء إدخال قيم صحيحة";
+            }
+            resBox.innerHTML = res;
+        }
+
+        // --- Original Calculator Logic (Preserved) ---
+        let expression = "";
+        let isDegrees = false;
+        let lastAns = 0;
+        let history = [];
+
+        function updateDisplay() { document.getElementById('display').value = expression; }
+        function inputNum(num) { expression += num; updateDisplay(); }
+        function inputToken(token) { expression += (token === 'Ans' ? lastAns : token); updateDisplay(); }
+        function inputConst(c) { expression += (c === 'PI' ? 'Math.PI' : 'Math.E'); updateDisplay(); }
+        function inputFunc(func) {
+            const map = {sin:'sin(', cos:'cos(', tan:'tan(', log:'log10(', ln:'log(', sqrt:'sqrt(', abs:'abs(', fact:'fact('};
+            expression += map[func]; updateDisplay();
+        }
+        function deleteChar() { expression = expression.slice(0, -1); updateDisplay(); }
+        function clearDisplay() { expression = ""; document.getElementById('history-preview').innerText = ""; updateDisplay(); }
+        function toggleAngleMode() {
+            isDegrees = !isDegrees;
+            const btn = document.getElementById('angle-mode');
+            btn.innerText = isDegrees ? "DEG" : "RAD";
+            btn.classList.toggle('bg-surface/50');
+            btn.classList.toggle('bg-accent');
+            btn.classList.toggle('text-black');
+        }
+
+        // Math impl
+        const sin = (x) => isDegrees ? Math.sin(x * Math.PI / 180) : Math.sin(x);
+        const cos = (x) => isDegrees ? Math.cos(x * Math.PI / 180) : Math.cos(x);
+        const tan = (x) => isDegrees ? Math.tan(x * Math.PI / 180) : Math.tan(x);
+        const log = Math.log; const log10 = Math.log10; const sqrt = Math.sqrt; const abs = Math.abs;
+        function fact(n) { if(n<0)return NaN; if(n<2)return 1; let r=1; for(let i=2;i<=n;i++)r*=i; return r; }
+
+        function calculate() {
+            try {
+                let evalString = expression.replace(/\^/g, '**');
+                let result = eval(evalString);
+                if (!isFinite(result)) throw new Error("Error");
+                result = parseFloat(result.toPrecision(precision)); // Use setting
+                document.getElementById('history-preview').innerText = expression + " =";
+                addToHistory(expression, result);
+                expression = result.toString();
+                lastAns = result;
+                updateDisplay();
+            } catch (e) {
+                document.getElementById('display').value = "Error";
+                setTimeout(() => updateDisplay(), 1500);
+            }
+        }
+
+        function toggleHistoryPanel() { document.getElementById('history-panel').classList.toggle('translate-x-full'); }
+        function addToHistory(expr, res) { history.unshift({ expr, res }); if(history.length > 20) history.pop(); renderHistory(); }
+        function renderHistory() {
+            const list = document.getElementById('history-list'); list.innerHTML = "";
+            if(history.length === 0) { list.innerHTML = `<div class="text-center text-gray-500 text-sm mt-10">${translations[currentLang].no_history}</div>`; return; }
+            history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-black/20 p-2 rounded cursor-pointer hover:bg-white/5 border-b border-gray-600/50";
+                div.innerHTML = `<div class="text-xs text-gray-400 dir-ltr text-right">${item.expr}</div><div class="text-accent font-bold text-right">${item.res}</div>`;
+                div.onclick = () => { expression = item.res.toString(); updateDisplay(); toggleHistoryPanel(); };
+                list.appendChild(div);
+            });
+        }
+        function clearHistory() { history = []; renderHistory(); }
+
+        // --- Graph Logic ---
+        let graphScale = 40, offsetX = 0, offsetY = 0;
+        function initGraph() {
+            const canvas = document.getElementById('graphCanvas');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            drawGrid();
+        }
+        function drawGrid() {
+            const c = document.getElementById('graphCanvas'); const ctx = c.getContext('2d');
+            const w = c.width, h = c.height, cx = w/2 + offsetX, cy = h/2 + offsetY;
+            ctx.fillStyle = isDarkMode ? "#181825" : "#e6e9ef"; ctx.fillRect(0,0,w,h);
+            ctx.strokeStyle = isDarkMode ? "#313244" : "#cbd5e1"; ctx.lineWidth=1; ctx.beginPath();
+            for(let x=cx%graphScale;x<w;x+=graphScale){ctx.moveTo(x,0);ctx.lineTo(x,h);}
+            for(let y=cy%graphScale;y<h;y+=graphScale){ctx.moveTo(0,y);ctx.lineTo(w,y);}
+            ctx.stroke();
+            ctx.strokeStyle = isDarkMode ? "#cdd6f4" : "#4c4f69"; ctx.lineWidth=2; ctx.beginPath();
+            ctx.moveTo(0,cy); ctx.lineTo(w,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,h); ctx.stroke();
+        }
+        function drawGraph() {
+            initGraph(); const inp = document.getElementById('graph-input').value;
+            const c = document.getElementById('graphCanvas'); const ctx = c.getContext('2d');
+            const cx = c.width/2 + offsetX, cy = c.height/2 + offsetY;
+            ctx.strokeStyle = "#a6e3a1"; ctx.lineWidth=2; ctx.beginPath();
+            let first=true;
+            for(let px=0; px<c.width; px++){
+                let x = (px-cx)/graphScale;
+                try { let y = eval(inp.replace(/x/g, `(${x})`)); let py = cy - (y*graphScale);
+                    if(isFinite(py)){ if(first){ctx.moveTo(px,py);first=false;}else{ctx.lineTo(px,py);} }
+                } catch(e){}
+            }
+            ctx.stroke();
+        }
+        function zoomGraph(f) { graphScale*=f; drawGraph(); }
+        function resetGraph() { graphScale=40; offsetX=0; offsetY=0; drawGraph(); }
+        window.addEventListener('resize', () => { if(!document.getElementById('tab-graph').classList.contains('hidden')) drawGraph(); });
+
+        // --- Converter Logic ---
+        const units = { length: { 'm': 1, 'cm': 0.01, 'km': 1000, 'in': 0.0254, 'ft': 0.3048 }, weight: { 'kg': 1, 'g': 0.001, 'lb': 0.453592 }, data: { 'B': 1, 'KB': 1024, 'MB': 1048576, 'GB': 1073741824 }, temp: 'special' };
+        let currentConvType = 'length';
+        function initConverter() { setConvType('length'); }
+        function setConvType(type) {
+            currentConvType = type;
+            document.querySelectorAll('.conv-type-btn').forEach(btn => {
+                btn.className = btn.dataset.type === type ? "conv-type-btn bg-primary text-black p-2 rounded text-sm font-bold" : "conv-type-btn bg-black/20 text-gray-400 p-2 rounded text-sm";
+            });
+            const f = document.getElementById('unit-from'), t = document.getElementById('unit-to'); f.innerHTML=''; t.innerHTML='';
+            const k = type === 'temp' ? ['C','F','K'] : Object.keys(units[type]);
+            k.forEach(x => { f.innerHTML+=`<option value="${x}">${x}</option>`; t.innerHTML+=`<option value="${x}">${x}</option>`; });
+            if(k.length>1) t.selectedIndex=1; convert();
+        }
+        function convert() {
+            const v = parseFloat(document.getElementById('conv-input').value), f = document.getElementById('unit-from').value, t = document.getElementById('unit-to').value;
+            if(isNaN(v)) { document.getElementById('conv-result').value=""; return; }
+            let r;
+            if(currentConvType === 'temp') {
+                let c = f==='C'?v : f==='F'?(v-32)*5/9 : v-273.15;
+                r = t==='C'?c : t==='F'?(c*9/5)+32 : c+273.15;
+            } else { r = (v * units[currentConvType][f]) / units[currentConvType][t]; }
+            document.getElementById('conv-result').value = parseFloat(r.toFixed(6));
+        }
+
+        // --- Solver Logic ---
+        function solveQuadratic() {
+            const a = parseFloat(document.getElementById('solver-a').value)||0, b = parseFloat(document.getElementById('solver-b').value)||0, c = parseFloat(document.getElementById('solver-c').value)||0;
+            const d = b*b - 4*a*c, out = document.getElementById('solver-result');
+            if(a===0) { out.innerHTML="a cannot be 0"; return; }
+            if(d>0) out.innerHTML=`x₁ = ${((-b+Math.sqrt(d))/(2*a)).toFixed(4)}<br>x₂ = ${((-b-Math.sqrt(d))/(2*a)).toFixed(4)}`;
+            else if(d===0) out.innerHTML=`x = ${(-b/(2*a)).toFixed(4)}`;
+            else out.innerHTML=`x₁ = ${(-b/(2*a)).toFixed(4)} + ${(Math.sqrt(-d)/(2*a)).toFixed(4)}i<br>x₂ = ${(-b/(2*a)).toFixed(4)} - ${(Math.sqrt(-d)/(2*a)).toFixed(4)}i`;
+        }
+
+        // --- Assistant Resize ---
+        window.visualViewport?.addEventListener('resize', () => {
+            if(!document.getElementById('tab-assistant').classList.contains('hidden') && window.visualViewport.height < window.innerHeight*0.8) {
+                document.querySelector('.bottom-shield').style.display='none'; document.querySelector('.frame-wrapper').style.marginBottom='0';
+            } else {
+                document.querySelector('.bottom-shield').style.display='flex'; document.querySelector('.frame-wrapper').style.marginBottom='-40px';
+            }
+        });
+
+        // Start
+        switchTab('calc');
+    </script>
+</body>
+</html>

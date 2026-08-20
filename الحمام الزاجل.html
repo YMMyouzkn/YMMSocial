@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تشفير الحمام الزاجل</title>
+    <style>
+        :root {
+            /* Light theme (default) */
+            --bg: #f5f0e8;
+            --surface: #ffffff;
+            --surface2: #ece4d8;
+            --gold: #8b6b4a;
+            --gold-light: #b39264;
+            --text: #3e3a35;
+            --text-light: #6b6358;
+            --accent: #8b6b4a;
+            --tab-active: #e0d5c4;
+            --border: #d4c8b4;
+            --danger: #c0392b;
+            --success: #2e7d32;
+            --input-bg: #ffffff;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.3s ease;
+            --header-bg: #e8d9c8;
+            --btn-encrypt-bg: #3c6b4b;
+            --btn-decrypt-bg: #8b4e3a;
+            --footer-text: #5e574d;
+        }
+
+        body.dark {
+            --bg: #1a1a2e;
+            --surface: #16213e;
+            --surface2: #0f3460;
+            --gold: #d4a574;
+            --gold-light: #e8c9a0;
+            --text: #e0d5c1;
+            --text-light: #c4b99a;
+            --accent: #c9a96e;
+            --tab-active: #1e3a5f;
+            --border: #2a3a50;
+            --danger: #c0392b;
+            --success: #27ae60;
+            --input-bg: #1c2541;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --header-bg: linear-gradient(180deg, #1a2740 0%, #162030 100%);
+            --btn-encrypt-bg: linear-gradient(135deg, #2c5a3e 0%, #1e4a2e 100%);
+            --btn-decrypt-bg: linear-gradient(135deg, #5a3a2c 0%, #4a2a1e 100%);
+            --footer-text: #c4b99a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Tajawal', 'Cairo', 'Noto Sans Arabic', Tahoma, sans-serif;
+            padding: 20px;
+            transition: background 0.3s;
+        }
+
+        .container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--header-bg, #e8d9c8);
+            padding: 20px 25px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-icon {
+            font-size: 36px;
+        }
+        .header h1 {
+            font-size: 1.7rem;
+            color: var(--gold);
+            margin: 0;
+        }
+        .header-controls {
+            display: flex;
+            gap: 8px;
+        }
+        .icon-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 1.1rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .icon-btn:hover {
+            background: var(--tab-active);
+            border-color: var(--gold);
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-align: center;
+            padding: 5px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 14px 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            color: var(--gold);
+            background: var(--tab-active);
+            box-shadow: inset 0 -3px 0 var(--gold);
+        }
+        .tab-btn .tab-icon {
+            display: block;
+            font-size: 1.3rem;
+        }
+
+        /* Content */
+        .content {
+            padding: 20px 25px;
+        }
+        .tab-panel {
+            display: none;
+            animation: fade 0.3s;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        label {
+            display: block;
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            background: var(--input-bg);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            color: var(--text);
+            font-size: 1rem;
+            font-family: 'Consolas', 'Courier New', 'Tajawal', monospace;
+            resize: vertical;
+            transition: var(--transition);
+        }
+        textarea:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(180, 140, 100, 0.2);
+        }
+        textarea {
+            min-height: 110px;
+            max-height: 250px;
+        }
+        .key-input-wrapper {
+            margin: 15px 0;
+            padding: 15px;
+            background: var(--surface2);
+            border-radius: var(--radius-sm);
+            border: 1px dashed var(--border);
+        }
+        .key-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: white;
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn-encrypt {
+            background: var(--btn-encrypt-bg, #3c6b4b);
+        }
+        .btn-decrypt {
+            background: var(--btn-decrypt-bg, #8b4e3a);
+        }
+        .btn-copy {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-swap {
+            flex: 0.5;
+            min-width: 45px;
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .info-box {
+            background: var(--surface2);
+            border-radius: var(--radius-sm);
+            padding: 10px 15px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            border-left: 3px solid var(--gold);
+            margin-top: 10px;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.7rem;
+            color: var(--footer-text, #5e574d);
+            border-top: 1px solid var(--border);
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #2d4a2e;
+            color: white;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: transform 0.4s;
+            z-index: 999;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body class="dark">
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <span class="header-icon">🕊️</span>
+                <h1 id="main-title">تشفير الحمام الزاجل</h1>
+            </div>
+            <div class="header-controls">
+                <button class="icon-btn" onclick="toggleLanguage()" id="lang-btn">English</button>
+                <button class="icon-btn" onclick="toggleTheme()" id="theme-btn">☀️</button>
+            </div>
+        </div>
+        <div class="subtitle" id="subtitle">Pigeon Post Cipher — ثلاثة أنظمة تشفير</div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="mono">
+                <span class="tab-icon">🔡</span> <span class="tab-text" data-i18n="tab_mono">الأحادي</span>
+            </button>
+            <button class="tab-btn" data-tab="deep">
+                <span class="tab-icon">🔐</span> <span class="tab-text" data-i18n="tab_deep">العميق</span>
+            </button>
+            <button class="tab-btn" data-tab="seq">
+                <span class="tab-icon">🔢</span> <span class="tab-text" data-i18n="tab_seq">المتسلسل</span>
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Mono Panel -->
+            <div class="tab-panel active" id="panel-mono">
+                <label id="mono-label-input">📝 النص:</label>
+                <textarea id="mono-input" placeholder="أدخل النص هنا..."></textarea>
+                <div class="btn-row">
+                    <button class="btn btn-encrypt" onclick="monoEncrypt()">🔒 <span data-i18n="encrypt">تشفير</span></button>
+                    <button class="btn btn-decrypt" onclick="monoDecrypt()">🔓 <span data-i18n="decrypt">فك التشفير</span></button>
+                    <button class="btn btn-swap" onclick="swapTextareas('mono-input','mono-output')">↔️</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('mono-output')">📋 <span data-i18n="copy">نسخ</span></button>
+                </div>
+                <label id="mono-label-output">📤 الناتج:</label>
+                <textarea id="mono-output" placeholder="النتيجة هنا..." readonly></textarea>
+                <div class="info-box" data-i18n="info_mono">
+                    💡 كل حرف يُستبدل بحرف آخر + رقمين. الرموز والحركات تبقى كما هي.
+                </div>
+            </div>
+
+            <!-- Deep Panel -->
+            <div class="tab-panel" id="panel-deep">
+                <label id="deep-label-input">📝 النص:</label>
+                <textarea id="deep-input" placeholder="أدخل النص هنا..."></textarea>
+                <div class="key-input-wrapper">
+                    <label id="deep-key-label">🔑 الكود التشفيري (12 رقم):</label>
+                    <input type="text" id="deep-key" placeholder="مثلاً 739105284610" maxlength="12" value="739105284610">
+                    <div class="key-hint" data-i18n="deep_key_hint">يجب أن يكون 12 رقماً بالضبط</div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-encrypt" onclick="deepEncrypt()">🔒 <span data-i18n="encrypt">تشفير</span></button>
+                    <button class="btn btn-decrypt" onclick="deepDecrypt()">🔓 <span data-i18n="decrypt">فك التشفير</span></button>
+                    <button class="btn btn-swap" onclick="swapTextareas('deep-input','deep-output')">↔️</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('deep-output')">📋 <span data-i18n="copy">نسخ</span></button>
+                </div>
+                <label id="deep-label-output">📤 الناتج:</label>
+                <textarea id="deep-output" placeholder="النتيجة هنا..." readonly></textarea>
+                <div class="info-box" data-i18n="info_deep">
+                    💡 كل حرف يتحول لـ3 أرقام ويضاف إليه رقم من المفتاح الدوري.
+                </div>
+            </div>
+
+            <!-- Sequential Panel -->
+            <div class="tab-panel" id="panel-seq">
+                <label id="seq-label-input">📝 النص:</label>
+                <textarea id="seq-input" placeholder="أدخل النص هنا..."></textarea>
+                <div class="btn-row">
+                    <button class="btn btn-encrypt" onclick="sequentialEncrypt()">🔒 <span data-i18n="encrypt">تشفير</span></button>
+                    <button class="btn btn-decrypt" onclick="sequentialDecrypt()">🔓 <span data-i18n="decrypt">فك التشفير</span></button>
+                    <button class="btn btn-swap" onclick="swapTextareas('seq-input','seq-output')">↔️</button>
+                    <button class="btn btn-copy" onclick="copyToClipboard('seq-output')">📋 <span data-i18n="copy">نسخ</span></button>
+                </div>
+                <label id="seq-label-output">📤 الناتج:</label>
+                <textarea id="seq-output" placeholder="النتيجة هنا..." readonly></textarea>
+                <div class="info-box" data-i18n="info_seq">
+                    💡 كل حرف = رقم ترتيبه × 3.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <span data-i18n="footer">تم تطويره من</span> <strong>YMM</strong> © 2025
+        </div>
+    </div>
+
+    <div class="toast" id="toast">تم النسخ</div>
+
+    <script>
+        // ==================== TRANSLATIONS ====================
+        const i18n = {
+            ar: {
+                mainTitle: 'تشفير الحمام الزاجل',
+                subtitle: 'Pigeon Post Cipher — ثلاثة أنظمة تشفير',
+                tab_mono: 'الأحادي',
+                tab_deep: 'العميق',
+                tab_seq: 'المتسلسل',
+                encrypt: 'تشفير',
+                decrypt: 'فك التشفير',
+                copy: 'نسخ',
+                label_input: '📝 النص:',
+                label_output: '📤 الناتج:',
+                deep_key_label: '🔑 الكود التشفيري (12 رقم):',
+                deep_key_hint: 'يجب أن يكون 12 رقماً بالضبط',
+                info_mono: '💡 كل حرف يُستبدل بحرف آخر + رقمين. الرموز والحركات تبقى كما هي.',
+                info_deep: '💡 كل حرف يتحول لـ3 أرقام ويضاف إليه رقم من المفتاح الدوري.',
+                info_seq: '💡 كل حرف = رقم ترتيبه × 3.',
+                footer: 'تم تطويره من',
+                toast_copy: 'تم النسخ إلى الحافظة',
+                toast_empty: 'لا يوجد نص لنسخه',
+                toast_key: 'الكود يجب أن يكون 12 رقماً',
+                placeholder: 'أدخل النص هنا...',
+                result_placeholder: 'النتيجة هنا...',
+                lang_btn: 'English',
+                theme_btn: '☀️',
+                mono_input_label: '📝 النص:',
+                mono_output_label: '📤 الناتج:',
+                deep_input_label: '📝 النص:',
+                deep_output_label: '📤 الناتج:',
+                seq_input_label: '📝 النص:',
+                seq_output_label: '📤 الناتج:'
+            },
+            en: {
+                mainTitle: 'Pigeon Post Cipher',
+                subtitle: 'Three encryption systems in one tool',
+                tab_mono: 'Mono',
+                tab_deep: 'Deep',
+                tab_seq: 'Sequential',
+                encrypt: 'Encrypt',
+                decrypt: 'Decrypt',
+                copy: 'Copy',
+                label_input: '📝 Text:',
+                label_output: '📤 Result:',
+                deep_key_label: '🔑 Cipher Key (12 digits):',
+                deep_key_hint: 'Must be exactly 12 digits',
+                info_mono: '💡 Each letter is replaced by another letter + two digits. Symbols and diacritics remain unchanged.',
+                info_deep: '💡 Each letter is encoded as 3 digits plus a digit from the cyclic key.',
+                info_seq: '💡 Each letter = position × 3.',
+                footer: 'Developed by',
+                toast_copy: 'Copied to clipboard',
+                toast_empty: 'Nothing to copy',
+                toast_key: 'Key must be 12 digits',
+                placeholder: 'Enter text here...',
+                result_placeholder: 'Result will appear here...',
+                lang_btn: 'العربية',
+                theme_btn: '🌙',
+                mono_input_label: '📝 Text:',
+                mono_output_label: '📤 Result:',
+                deep_input_label: '📝 Text:',
+                deep_output_label: '📤 Result:',
+                seq_input_label: '📝 Text:',
+                seq_output_label: '📤 Result:'
+            }
+        };
+
+        let currentLang = 'ar';
+        let currentTheme = 'dark'; // default dark
+
+        function applyLanguage(lang) {
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('main-title').textContent = i18n[lang].mainTitle;
+            document.getElementById('subtitle').textContent = i18n[lang].subtitle;
+            document.getElementById('lang-btn').textContent = i18n[lang].lang_btn;
+
+            // Update all elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang][key]) {
+                    el.textContent = i18n[lang][key];
+                }
+            });
+
+            // Specific labels
+            document.getElementById('mono-label-input').textContent = i18n[lang].mono_input_label;
+            document.getElementById('mono-label-output').textContent = i18n[lang].mono_output_label;
+            document.getElementById('deep-label-input').textContent = i18n[lang].deep_input_label;
+            document.getElementById('deep-label-output').textContent = i18n[lang].deep_output_label;
+            document.getElementById('seq-label-input').textContent = i18n[lang].seq_input_label;
+            document.getElementById('seq-label-output').textContent = i18n[lang].seq_output_label;
+            document.getElementById('deep-key-label').textContent = i18n[lang].deep_key_label;
+
+            // Update placeholders
+            document.querySelectorAll('textarea').forEach(ta => {
+                if (ta.placeholder.includes('أدخل') || ta.placeholder.includes('Enter')) {
+                    ta.placeholder = i18n[lang].placeholder;
+                } else if (ta.placeholder.includes('النتيجة') || ta.placeholder.includes('Result')) {
+                    ta.placeholder = i18n[lang].result_placeholder;
+                }
+            });
+            document.getElementById('mono-input').placeholder = i18n[lang].placeholder;
+            document.getElementById('deep-input').placeholder = i18n[lang].placeholder;
+            document.getElementById('seq-input').placeholder = i18n[lang].placeholder;
+            document.getElementById('mono-output').placeholder = i18n[lang].result_placeholder;
+            document.getElementById('deep-output').placeholder = i18n[lang].result_placeholder;
+            document.getElementById('seq-output').placeholder = i18n[lang].result_placeholder;
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            applyLanguage(currentLang);
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                currentTheme = 'light';
+                document.getElementById('theme-btn').textContent = '🌙';
+            } else {
+                body.classList.add('dark');
+                currentTheme = 'dark';
+                document.getElementById('theme-btn').textContent = '☀️';
+            }
+        }
+
+        // ==================== TAB SWITCHING ====================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-tab');
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById('panel-' + target).classList.add('active');
+            });
+        });
+
+        // ==================== TOAST ====================
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function copyToClipboard(id) {
+            const ta = document.getElementById(id);
+            if (!ta.value.trim()) {
+                showToast(i18n[currentLang].toast_empty);
+                return;
+            }
+            navigator.clipboard.writeText(ta.value).then(() => {
+                showToast(i18n[currentLang].toast_copy);
+            }).catch(() => {
+                ta.select();
+                document.execCommand('copy');
+                showToast(i18n[currentLang].toast_copy);
+            });
+        }
+
+        function swapTextareas(inputId, outputId) {
+            const input = document.getElementById(inputId);
+            const output = document.getElementById(outputId);
+            const temp = input.value;
+            input.value = output.value;
+            output.value = temp;
+            showToast('↔️');
+        }
+
+        // ==================== ENCRYPTION LOGIC ====================
+        const arabicLetters = [
+            'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف',
+            'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'
+        ];
+        const englishLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const arabicIndexMap = {};
+        arabicLetters.forEach((l, i) => arabicIndexMap[l] = i);
+        const englishIndexMap = {};
+        englishLetters.forEach((l, i) => englishIndexMap[l] = i);
+
+        function getLetterPosition(ch) {
+            if (arabicIndexMap[ch] !== undefined) return arabicIndexMap[ch] + 1;
+            const upper = ch.toUpperCase();
+            if (englishIndexMap[upper] !== undefined) return englishIndexMap[upper] + 1;
+            return null;
+        }
+
+        function monoTransform(ch, encrypt = true) {
+            if (arabicIndexMap[ch] !== undefined) {
+                const idx = arabicIndexMap[ch];
+                const newIdx = encrypt ? (idx + 9) % 28 : (idx + 28 - 9) % 28;
+                const newLetter = arabicLetters[newIdx];
+                const code = ((encrypt ? (idx + 1) * 13 + 7 : (idx + 1) * 13 + 7)) % 100;
+                return newLetter + String(code).padStart(2, '0');
+            } else if (englishIndexMap[ch.toUpperCase()] !== undefined) {
+                const upper = ch.toUpperCase();
+                const idx = englishIndexMap[upper];
+                const newIdx = encrypt ? (idx + 13) % 26 : (idx + 26 - 13) % 26;
+                const newLetter = englishLetters[newIdx];
+                const finalLetter = ch === upper ? newLetter : newLetter.toLowerCase();
+                const code = ((idx + 1) * 17 + 3) % 100;
+                return finalLetter + String(code).padStart(2, '0');
+            }
+            return ch;
+        }
+
+        function monoEncrypt() {
+            const input = document.getElementById('mono-input').value;
+            let out = '';
+            for (const ch of input) {
+                if (getLetterPosition(ch)) out += monoTransform(ch, true);
+                else out += ch;
+            }
+            document.getElementById('mono-output').value = out;
+        }
+
+        function monoDecrypt() {
+            const input = document.getElementById('mono-input').value;
+            let out = '';
+            let i = 0;
+            while (i < input.length) {
+                const ch = input[i];
+                const pos = getLetterPosition(ch);
+                if (pos && i + 2 < input.length && /\d/.test(input[i + 1]) && /\d/.test(input[i + 2])) {
+                    const code = input.substring(i + 1, i + 3);
+                    // find original
+                    let found = false;
+                    for (const orig of [...arabicLetters, ...englishLetters, ...Object.keys(arabicIndexMap)]) {
+                        if (getLetterPosition(orig)) {
+                            const transformed = monoTransform(orig, true);
+                            if (transformed[0] === ch && transformed.substring(1) === code) {
+                                out += orig;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!found) out += ch + code;
+                    i += 3;
+                } else {
+                    out += ch;
+                    i++;
+                }
+            }
+            document.getElementById('mono-output').value = out;
+        }
+
+        function deepEncrypt() {
+            const key = document.getElementById('deep-key').value.trim();
+            if (!/^\d{12}$/.test(key)) {
+                showToast(i18n[currentLang].toast_key);
+                return;
+            }
+            const digits = key.split('').map(Number);
+            const input = document.getElementById('deep-input').value;
+            let out = [];
+            let ki = 0;
+            for (const ch of input) {
+                const pos = getLetterPosition(ch);
+                if (pos) {
+                    const base = pos;
+                    const sum = base + digits[ki % 12];
+                    out.push(String(sum).padStart(3, '0'));
+                    ki++;
+                } else if (ch === ' ') out.push(' ');
+                else out.push(ch);
+            }
+            document.getElementById('deep-output').value = out.join(' ');
+        }
+
+        function deepDecrypt() {
+            const key = document.getElementById('deep-key').value.trim();
+            if (!/^\d{12}$/.test(key)) {
+                showToast(i18n[currentLang].toast_key);
+                return;
+            }
+            const digits = key.split('').map(Number);
+            const input = document.getElementById('deep-input').value;
+            const tokens = input.split(/(\s+)/);
+            let out = '';
+            let ki = 0;
+            for (const token of tokens) {
+                if (/^\d{3,4}$/.test(token.trim())) {
+                    const num = parseInt(token.trim());
+                    const base = num - digits[ki % 12];
+                    if (base >= 1 && base <= 28) out += arabicLetters[base - 1] || token;
+                    else if (base >= 1 && base <= 26) out += englishLetters[base - 1] || token;
+                    else out += token;
+                    ki++;
+                } else out += token;
+            }
+            document.getElementById('deep-output').value = out;
+        }
+
+        function sequentialEncrypt() {
+            const input = document.getElementById('seq-input').value;
+            let out = [];
+            for (const ch of input) {
+                const pos = getLetterPosition(ch);
+                if (pos) out.push(String(pos * 3).padStart(3, '0'));
+                else if (ch === ' ') out.push(' ');
+                else out.push(ch);
+            }
+            document.getElementById('seq-output').value = out.join(' ');
+        }
+
+        function sequentialDecrypt() {
+            const input = document.getElementById('seq-input').value;
+            const tokens = input.split(/(\s+)/);
+            let out = '';
+            for (const token of tokens) {
+                if (/^\d{2,3}$/.test(token.trim())) {
+                    const num = parseInt(token.trim());
+                    if (num % 3 === 0) {
+                        const pos = num / 3;
+                        if (pos >= 1 && pos <= 28) out += arabicLetters[pos - 1] || token;
+                        else if (pos >= 1 && pos <= 26) out += englishLetters[pos - 1] || token;
+                        else out += token;
+                    } else out += token;
+                } else out += token;
+            }
+            document.getElementById('seq-output').value = out;
+        }
+
+        // init language and theme
+        applyLanguage(currentLang);
+        if (currentTheme === 'dark') document.body.classList.add('dark');
+        else document.body.classList.remove('dark');
+        document.getElementById('theme-btn').textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+    </script>
+</body>
+</html>

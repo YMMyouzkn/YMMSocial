@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>عارضة الأكواد للجوال</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ace.min.js">
+    </script>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --surface: #16213e;
+            --surface2: #0f3460;
+            --primary: #e94560;
+            --text: #e0e0e0;
+            --text2: #a0a0a0;
+            --border: #2a2a4a;
+            --sidebar-width: 280px;
+            --header-height: 50px;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: all 0.3s;
+        }
+
+        /* ========== شريط علوي ========== */
+        .header {
+            height: var(--header-height);
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        .hamburger {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .hamburger:active {
+            background: var(--surface2);
+        }
+        .header-title {
+            font-weight: 700;
+            font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .header-actions {
+            margin-right: auto;
+            display: flex;
+            gap: 6px;
+        }
+        .header-actions button {
+            background: var(--surface2);
+            color: var(--text);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .header-actions button:active {
+            background: var(--primary);
+        }
+
+        /* ========== تخطيط رئيسي ========== */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ========== القائمة الجانبية ========== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 90;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .sidebar.closed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+            border: none;
+            opacity: 0;
+        }
+        .sidebar-section {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid var(--border);
+        }
+        .sidebar-section h3 {
+            font-size: 13px;
+            color: var(--text2);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sidebar-section label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .sidebar select,
+        .sidebar input[type="text"] {
+            width: 100%;
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            margin-bottom: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .sidebar select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0a0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 10px center;
+            background-position: right 10px center;
+            padding-left: 30px;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .btn-group button {
+            flex: 1 1 auto;
+            min-width: 60px;
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.15s;
+        }
+        .btn-group button:active {
+            background: var(--primary);
+            transform: scale(0.95);
+        }
+        .btn-primary {
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            font-weight: bold;
+        }
+
+        /* ========== منطقة المحرر والمعاينة ========== */
+        .editor-preview {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+        .tabs {
+            display: flex;
+            background: var(--surface);
+            border-bottom: 2px solid var(--border);
+            flex-shrink: 0;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text2);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: var(--bg);
+        }
+        .tab-content {
+            flex: 1;
+            display: none;
+            overflow: hidden;
+        }
+        .tab-content.active {
+            display: flex;
+        }
+        #editor {
+            width: 100%;
+            height: 100%;
+            font-size: 14px;
+        }
+        .preview-container {
+            width: 100%;
+            height: 100%;
+            background: white;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* ========== طبقة خلفية للقائمة ========== */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 80;
+        }
+        .overlay.active {
+            display: block;
+        }
+
+        /* ========== نافذة السجل ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .close-btn {
+            background: #c44;
+            border: none;
+            color: white;
+            font-size: 18px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .snippet-item {
+            background: var(--bg);
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .snippet-info {
+            flex: 1;
+            min-width: 120px;
+        }
+        .snippet-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .snippet-date {
+            font-size: 11px;
+            color: var(--text2);
+        }
+        .snippet-actions button {
+            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin: 2px;
+        }
+
+        /* ========== تحسينات الجوال ========== */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: var(--header-height);
+                right: 0;
+                bottom: 0;
+                height: calc(100vh - var(--header-height));
+                height: calc(100dvh - var(--header-height));
+                box-shadow: -4px 0 20px rgba(0,0,0,0.5);
+                padding-bottom: var(--safe-bottom);
+            }
+            .sidebar.closed {
+                transform: translateX(100%);
+                width: var(--sidebar-width);
+                padding: 10px;
+                opacity: 1;
+                border: 1px solid var(--border);
+            }
+        }
+        @media (min-width: 769px) {
+            .overlay {
+                display: none !important;
+            }
+        }
+
+        /* شريط التمرير */
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        /* زر العودة للأعلى (في القائمة) */
+        .fab {
+            position: fixed;
+            bottom: calc(20px + var(--safe-bottom));
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(233,68,96,0.5);
+            z-index: 70;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .fab:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <!-- شريط علوي -->
+    <div class="header">
+        <button class="hamburger" id="menuToggle" aria-label="القائمة">☰</button>
+        <span class="header-title" id="headerTitle">عارضة الأكواد</span>
+        <div class="header-actions">
+            <button id="runBtn" title="تشغيل">▶️</button>
+            <button id="saveQuickBtn" title="حفظ سريع">💾</button>
+        </div>
+    </div>
+
+    <!-- تخطيط رئيسي -->
+    <div class="main-layout">
+        <!-- القائمة الجانبية -->
+        <aside class="sidebar" id="sidebar">
+            <!-- قسم اللغة والمظهر -->
+            <div class="sidebar-section">
+                <h3>⚙️ الإعدادات</h3>
+                <label>لغة البرمجة</label>
+                <select id="languageSelect"></select>
+                <label>المظهر</label>
+                <select id="themeSelect">
+                    <option value="monokai">🌙 Monokai</option>
+                    <option value="github">☀️ GitHub</option>
+                    <option value="dracula">🧛 Dracula</option>
+                    <option value="tomorrow_night">🌃 Tomorrow Night</option>
+                    <option value="cobalt">🔵 Cobalt</option>
+                    <option value="chrome">🔲 Chrome</option>
+                </select>
+                <label>
+                    <span>تحديث تلقائي</span>
+                    <input type="checkbox" id="autoRun" checked style="width:20px;height:20px;">
+                </label>
+            </div>
+
+            <!-- البحث والاستبدال -->
+            <div class="sidebar-section">
+                <h3>🔍 بحث واستبدال</h3>
+                <input type="text" id="searchInput" placeholder="كلمة البحث..." style="direction:ltr;text-align:left;">
+                <input type="text" id="replaceInput" placeholder="استبدال بـ..." style="direction:ltr;text-align:left;">
+                <div class="btn-group">
+                    <button id="findNextBtn">↓ التالي</button>
+                    <button id="findPrevBtn">↑ السابق</button>
+                </div>
+                <div class="btn-group" style="margin-top:4px;">
+                    <button id="replaceBtn">استبدال</button>
+                    <button id="replaceAllBtn">استبدال الكل</button>
+                </div>
+                <button id="clearSearchBtn" style="width:100%;margin-top:4px;">✕ إلغاء التحديد</button>
+            </div>
+
+            <!-- أدوات الكود -->
+            <div class="sidebar-section">
+                <h3>🛠️ أدوات الكود</h3>
+                <div class="btn-group">
+                    <button id="resetBtn">🔄 إعادة ضبط</button>
+                    <button id="clearAllBtn">🗑️ مسح الكل</button>
+                </div>
+                <div class="btn-group" style="margin-top:4px;">
+                    <button id="copyBtn">📋 نسخ الكود</button>
+                    <button id="pasteBtn">📄 لصق</button>
+                </div>
+            </div>
+
+            <!-- الملفات المحفوظة -->
+            <div class="sidebar-section">
+                <h3>📁 سجل الملفات</h3>
+                <button id="saveBtn" class="btn-primary" style="width:100%;">💾 حفظ باسم</button>
+                <button id="snippetsBtn" style="width:100%;margin-top:4px;">📂 استعراض المحفوظات</button>
+            </div>
+
+            <!-- لغة الواجهة -->
+            <div class="sidebar-section">
+                <h3>🌐 لغة الواجهة</h3>
+                <button id="toggleLangBtn" style="width:100%;">English 🇺🇸</button>
+            </div>
+        </aside>
+
+        <!-- طبقة الخلفية -->
+        <div class="overlay" id="overlay"></div>
+
+        <!-- منطقة المحرر -->
+        <div class="editor-preview">
+            <div class="tabs">
+                <button class="tab active" data-tab="editor">📝 الكود</button>
+                <button class="tab" data-tab="preview">👁️ المعاينة</button>
+            </div>
+            <div class="tab-content active" id="editorTab">
+                <div id="editor"></div>
+            </div>
+            <div class="tab-content" id="previewTab">
+                <div class="preview-container">
+                    <iframe id="previewFrame" title="معاينة"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة السجل -->
+    <div class="modal" id="snippetsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📁 المقتطفات المحفوظة</h3>
+                <button class="close-btn" id="closeModalBtn">✕</button>
+            </div>
+            <div id="snippetsList"></div>
+        </div>
+    </div>
+
+    <!-- زر سريع للقائمة (يظهر على الجوال) -->
+    <button class="fab" id="fabMenu" style="display:none;" title="القائمة">⚡</button>
+
+    <script>
+        (function() {
+            // ========== محرر Ace ==========
+            const editor = ace.edit("editor");
+            editor.setTheme("ace/theme/monokai");
+            editor.session.setMode("ace/mode/html");
+            editor.setOptions({
+                fontSize: "14px",
+                showPrintMargin: false,
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                wrap: true,
+            });
+
+            const defaultCode = `<!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial; background: #f0f0f0; padding: 20px; direction: rtl; }
+            h1 { color: #e94560; text-align: center; }
+            .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 400px; margin: 20px auto; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h1>🚀 مرحباً بك!</h1>
+            <p>هذه أداة برمجة للجوال.</p>
+            <p>يمكنك كتابة HTML و CSS و JavaScript.</p>
+          </div>
+          <script>
+            console.log("تم تحميل الصفحة بنجاح");
+          <\/script>
+        </body>
+        </html>`;
+            editor.setValue(defaultCode);
+            editor.clearSelection();
+
+            // ========== عناصر DOM ==========
+            const iframe = document.getElementById('previewFrame');
+            const autoRunCheck = document.getElementById('autoRun');
+            const runBtn = document.getElementById('runBtn');
+            const languageSelect = document.getElementById('languageSelect');
+            const themeSelect = document.getElementById('themeSelect');
+            const toggleLangBtn = document.getElementById('toggleLangBtn');
+            const searchInput = document.getElementById('searchInput');
+            const replaceInput = document.getElementById('replaceInput');
+            const findNextBtn = document.getElementById('findNextBtn');
+            const findPrevBtn = document.getElementById('findPrevBtn');
+            const replaceBtn = document.getElementById('replaceBtn');
+            const replaceAllBtn = document.getElementById('replaceAllBtn');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const pasteBtn = document.getElementById('pasteBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const saveQuickBtn = document.getElementById('saveQuickBtn');
+            const snippetsBtn = document.getElementById('snippetsBtn');
+            const snippetsModal = document.getElementById('snippetsModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const snippetsList = document.getElementById('snippetsList');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const fabMenu = document.getElementById('fabMenu');
+            const tabs = document.querySelectorAll('.tab');
+            const editorTab = document.getElementById('editorTab');
+            const previewTab = document.getElementById('previewTab');
+
+            let updateTimeout;
+            let currentLang = 'ar';
+
+            // ========== القائمة الجانبية ==========
+            function openSidebar() {
+                sidebar.classList.remove('closed');
+                overlay.classList.add('active');
+                fabMenu.style.display = 'none';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.add('closed');
+                overlay.classList.remove('active');
+                if (window.innerWidth <= 768) fabMenu.style.display = 'flex';
+            }
+
+            menuToggle.addEventListener('click', () => {
+                if (sidebar.classList.contains('closed')) openSidebar();
+                else closeSidebar();
+            });
+            overlay.addEventListener('click', closeSidebar);
+            fabMenu.addEventListener('click', openSidebar);
+
+            function handleResize() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('closed');
+                    overlay.classList.remove('active');
+                    fabMenu.style.display = 'none';
+                } else {
+                    sidebar.classList.add('closed');
+                    overlay.classList.remove('active');
+                    fabMenu.style.display = 'flex';
+                }
+            }
+            window.addEventListener('resize', handleResize);
+            handleResize();
+
+            // ========== تبويبات المحرر/المعاينة ==========
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.getAttribute('data-tab');
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    if (target === 'editor') {
+                        editorTab.classList.add('active');
+                        previewTab.classList.remove('active');
+                        editor.resize();
+                        editor.focus();
+                    } else {
+                        previewTab.classList.add('active');
+                        editorTab.classList.remove('active');
+                        updatePreview();
+                    }
+                });
+            });
+
+            // ========== المعاينة ==========
+            function updatePreview() {
+                const code = editor.getValue();
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(code);
+                doc.close();
+            }
+            runBtn.addEventListener('click', updatePreview);
+            editor.session.on('change', () => {
+                if (autoRunCheck.checked) {
+                    clearTimeout(updateTimeout);
+                    updateTimeout = setTimeout(updatePreview, 400);
+                }
+            });
+
+            // ========== لغات البرمجة ==========
+            const modes = [
+                { name: "HTML", mode: "html" }, { name: "CSS", mode: "css" },
+                { name: "JavaScript", mode: "javascript" }, { name: "TypeScript", mode: "typescript" },
+                { name: "Python", mode: "python" }, { name: "PHP", mode: "php" },
+                { name: "Ruby", mode: "ruby" }, { name: "Java", mode: "java" },
+                { name: "C / C++", mode: "c_cpp" }, { name: "C#", mode: "csharp" },
+                { name: "SQL", mode: "sql" }, { name: "XML", mode: "xml" },
+                { name: "JSON", mode: "json" }, { name: "Markdown", mode: "markdown" }
+            ];
+            modes.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.mode;
+                opt.textContent = item.name;
+                languageSelect.appendChild(opt);
+            });
+            languageSelect.value = "html";
+            languageSelect.addEventListener('change', function() {
+                editor.session.setMode("ace/mode/" + this.value);
+            });
+
+            // ========== المظهر ==========
+            themeSelect.addEventListener('change', function() {
+                editor.setTheme("ace/theme/" + this.value);
+            });
+
+            // ========== البحث والاستبدال ==========
+            findNextBtn.addEventListener('click', () => {
+                if (searchInput.value) editor.find(searchInput.value, { wrap: true,
+                    caseSensitive: false, wholeWord: false, regExp: false });
+            });
+            findPrevBtn.addEventListener('click', () => editor.findPrevious());
+            clearSearchBtn.addEventListener('click', () => {
+                editor.find('');
+                editor.clearSelection();
+                searchInput.value = '';
+                replaceInput.value = '';
+            });
+            searchInput.addEventListener('keyup', (e) => { if (e.key === 'Enter')
+            findNextBtn.click(); });
+            replaceBtn.addEventListener('click', () => {
+                const find = searchInput.value;
+                const rep = replaceInput.value;
+                if (!find) return;
+                editor.find(find);
+                const sel = editor.getSelection();
+                if (sel && !sel.isEmpty()) editor.session.replace(sel.getRange(), rep);
+            });
+            replaceAllBtn.addEventListener('click', () => {
+                if (searchInput.value) editor.execCommand('replaceAll', false, replaceInput
+                .value);
+            });
+
+            // ========== أدوات الكود ==========
+            resetBtn.addEventListener('click', () => {
+                if (confirm(currentLang === 'ar' ? 'هل تريد إعادة الكود إلى الوضع الافتراضي؟' :
+                        'Reset to default code?')) {
+                    editor.setValue(defaultCode);
+                    editor.clearSelection();
+                    updatePreview();
+                }
+            });
+            clearAllBtn.addEventListener('click', () => {
+                if (confirm(currentLang === 'ar' ? 'مسح كل الكود؟' : 'Clear all code?')) {
+                    editor.setValue('');
+                    editor.clearSelection();
+                    updatePreview();
+                }
+            });
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(editor.getValue()).then(() => {
+                    alert(currentLang === 'ar' ? '✅ تم النسخ!' : '✅ Copied!');
+                });
+            });
+            pasteBtn.addEventListener('click', async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    editor.setValue(text);
+                    editor.clearSelection();
+                    updatePreview();
+                } catch { alert(currentLang === 'ar' ? '❌ فشل اللصق' : '❌ Paste failed'); }
+            });
+
+            // ========== السجل (localStorage) ==========
+            const STORAGE_KEY = 'mobile_code_snippets';
+
+            function getSnippets() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+
+            function saveSnippets(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+            function saveSnippet(name) {
+                const n = name || prompt(currentLang === 'ar' ? 'اسم المقتطف:' : 'Snippet name:');
+                if (!n || !n.trim()) return;
+                const snippets = getSnippets();
+                snippets.push({ id: Date.now(), name: n.trim(), code: editor.getValue(), date: new Date()
+                        .toLocaleString() });
+                saveSnippets(snippets);
+                alert(currentLang === 'ar' ? '✅ تم الحفظ!' : '✅ Saved!');
+            }
+            saveBtn.addEventListener('click', () => saveSnippet());
+            saveQuickBtn.addEventListener('click', () => saveSnippet('سريع ' + new Date()
+        .toLocaleTimeString()));
+
+            function renderSnippets() {
+                const snippets = getSnippets();
+                snippetsList.innerHTML = snippets.length === 0 ?
+                    '<p style="text-align:center;color:#a0a0a0;">لا توجد محفوظات</p>' :
+                    snippets.slice().reverse().map(s => `
+                    <div class="snippet-item">
+                      <div class="snippet-info">
+                        <div class="snippet-name">${escapeHtml(s.name)}</div>
+                        <div class="snippet-date">${s.date}</div>
+                      </div>
+                      <div class="snippet-actions">
+                        <button data-load="${s.id}">تحميل</button>
+                        <button data-del="${s.id}">حذف</button>
+                      </div>
+                    </div>`).join('');
+                document.querySelectorAll('[data-load]').forEach(b => b.addEventListener('click', () => {
+                    const s = getSnippets().find(x => x.id === Number(b.dataset.load));
+                    if (s) { editor.setValue(s.code);
+                        editor.clearSelection();
+                        updatePreview();
+                        snippetsModal.classList.remove('active'); }
+                }));
+                document.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => {
+                    const id = Number(b.dataset.del);
+                    saveSnippets(getSnippets().filter(x => x.id !== id));
+                    renderSnippets();
+                }));
+            }
+            snippetsBtn.addEventListener('click', () => { renderSnippets();
+                snippetsModal.classList.add('active'); });
+            closeModalBtn.addEventListener('click', () => snippetsModal.classList.remove('active'));
+            snippetsModal.addEventListener('click', e => { if (e.target === snippetsModal) snippetsModal
+                    .classList.remove('active'); });
+
+            function escapeHtml(t) { return t.replace(/[&<>"']/g, m => ({ '&': '&', '<': '<',
+                    '>': '>', '"': '"', "'": ''' })[m]); }
+
+            // ========== لغة الواجهة ==========
+            const translations = {
+                ar: { headerTitle: 'عارضة الأكواد', run: '▶️', saveQuick: '💾', langBtn: 'English 🇺🇸' },
+                en: { headerTitle: 'Code Playground', run: '▶️', saveQuick: '💾', langBtn: 'عربي 🇸🇦' }
+            };
+
+            function applyLanguage() {
+                document.documentElement.lang = currentLang;
+                document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+                const t = translations[currentLang];
+                document.getElementById('headerTitle').textContent = t.headerTitle;
+                toggleLangBtn.textContent = t.langBtn;
+                // تحديث نصوص القائمة يدوياً
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (translations[currentLang][key]) el.textContent = translations[
+                        currentLang][key];
+                });
+            }
+            toggleLangBtn.addEventListener('click', () => {
+                currentLang = currentLang === 'ar' ? 'en' : 'ar';
+                applyLanguage();
+            });
+            applyLanguage();
+
+            // ========== بدء التشغيل ==========
+            updatePreview();
+            editor.focus();
+            // إغلاق القائمة عند الضغط على أي أداة (لتحسين تجربة الجوال)
+            sidebar.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target
+                    .tagName === 'INPUT') {
+                    if (window.innerWidth <= 768) {
+                        setTimeout(closeSidebar, 200);
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
