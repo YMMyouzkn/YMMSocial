@@ -1,0 +1,179 @@
+PROPRIETARY SOFTWARE LICENSE
+ALL RIGHTS RESERVED
+
+Copyright © 2026 YMMAMA yousef mamdoh mohamed abdalrhem mohamad awaja
+Projects Covered:
+
+- YMM Social
+- YMM SocialWeb
+- YMM Sapp
+
+This license applies to all source code, files, folders, designs, interfaces, graphics, assets, documentation, configurations, databases, scripts, and other original materials belonging to these projects.
+
+1. OWNERSHIP
+
+YMM Social, YMM SocialWeb, YMM Sapp, and all original materials contained within or associated with these projects are the exclusive intellectual property of YMMAMA yousef mamdoh mohamed abdalrhem mohamad awaja.
+
+All rights not expressly granted under this license are reserved by the Copyright Owner.
+
+2. NO LICENSE GRANTED
+
+The publication or availability of these projects on GitHub, websites, applications, or any other platform does not grant any person or organization a license or permission to use, copy, modify, reproduce, distribute, publish, sell, or otherwise exploit any part of the projects.
+
+No Open Source license is granted.
+
+3. PROHIBITED USE
+
+Without prior written permission from YMMAMA yousef mamdoh mohamed abdalrhem mohamad awaja, you may NOT:
+
+- Copy any project or any portion of its source code.
+- Download or redistribute the source code.
+- Modify, adapt, translate, or alter the projects.
+- Create derivative works.
+- Use any part of the projects in another project.
+- Reuse source code, designs, interfaces, or assets.
+- Publish or republish any portion of the projects.
+- Sell or commercially exploit the projects.
+- Claim ownership or authorship of the projects.
+- Remove copyright or ownership notices.
+- Present any part of the projects as your own work.
+- Upload copies or modified versions to another repository or platform.
+- Create clones or substantially similar versions based on the projects.
+
+4. SOURCE CODE
+
+All original source code belonging to YMM Social, YMM SocialWeb, and YMM Sapp is proprietary intellectual property.
+
+If any source code is publicly visible, such visibility does not constitute permission to use, copy, modify, or redistribute it.
+
+Public availability must not be interpreted as an Open Source license.
+
+5. PROJECTS AND FILES
+
+This license covers the projects in their entirety, including but not limited to:
+
+- HTML files
+- CSS files
+- JavaScript files
+- TypeScript files
+- JSON files
+- Configuration files
+- Images and graphics
+- Logos and icons
+- Fonts owned by the Copyright Owner
+- Documentation
+- Scripts
+- Components
+- Templates
+- User-interface designs
+- Project structure
+- Original algorithms and logic
+- Original database structures
+- Other original project files
+
+6. DERIVATIVE WORKS
+
+No person or organization may create a clone, fork-based derivative, modified version, redesign, translation, extension, or other derivative work based on the protected portions of these projects without prior written permission.
+
+7. ATTRIBUTION AND MISREPRESENTATION
+
+No person may claim or imply that they created, own, or maintain YMM Social, YMM SocialWeb, YMM Sapp, or any protected original material belonging to YMMAMA yousef mamdoh mohamed abdalrhem mohamad awaja.
+
+Changing the name, logo, username, or copyright notice does not transfer ownership.
+
+8. COMMERCIAL USE
+
+Commercial use is prohibited without prior written permission.
+
+This includes selling, licensing, monetizing, incorporating, or using any protected portion of the projects in a paid product or service.
+
+9. DISTRIBUTION
+
+Unauthorized distribution is prohibited.
+
+This includes distribution through GitHub, websites, applications, social media, file-sharing services, forums, messaging platforms, archives, or any other medium.
+
+10. PERMISSION
+
+The Copyright Owner may grant written permission to specific individuals or organizations.
+
+Any permission must clearly state what is allowed and may include additional conditions.
+
+Permission granted to one person or organization does not automatically grant permission to anyone else.
+
+11. TERMINATION
+
+Any permission granted under this license may be terminated if its conditions are violated.
+
+Upon termination, all unauthorized use must immediately cease.
+
+12. NO TRANSFER OF OWNERSHIP
+
+Nothing in this license transfers ownership of the projects or their intellectual property.
+
+YMMAMA yousef mamdoh mohamed abdalrhem mohamad awaja remains the copyright owner of all original materials covered by this license.
+
+13. TRADEMARKS AND BRANDING
+
+The names "YMM Social", "YMM SocialWeb", and "YMM Sapp", together with their logos, branding, visual identity, and original graphical materials, may be protected independently of the source code.
+
+No permission to use these names or branding is granted by this license.
+
+14. THIRD-PARTY MATERIALS
+
+This license applies only to original materials owned by YMMAMA yousef mamdoh mohamed abdalrhem mohamad awaja.
+
+Third-party libraries, frameworks, APIs, fonts, images, icons, or other materials may be governed by their own licenses.
+
+Nothing in this license overrides the applicable rights of third-party materials.
+
+15. NO WARRANTY
+
+The projects are provided "AS IS", without warranties of any kind, to the maximum extent permitted by applicable law.
+
+16. LIMITATION OF LIABILITY
+
+To the maximum extent permitted by applicable law, the Copyright Owner shall not be liable for damages arising from unauthorized use or reliance upon the projects.
+
+17. ENFORCEMENT
+
+The Copyright Owner reserves all rights and remedies available under applicable copyright and intellectual property laws against unauthorized copying, use, modification, distribution, publication, or misrepresentation.
+
+18. COPYRIGHT NOTICE
+
+The following notice identifies the ownership of the protected materials:
+
+Copyright © 2026 YMMAMA yousef mamdoh mohamed abdalrhem mohamad awaja
+All Rights Reserved.
+
+19. RESERVATION OF RIGHTS
+
+All rights not expressly granted are reserved exclusively by the Copyright Owner.
+
+No implied license or permission is granted by making the projects publicly available.
+
+20. LICENSE CHANGES
+
+The Copyright Owner reserves the right to update or replace this license for future versions of the projects.
+
+21. ACCEPTANCE
+
+By using any protected portion of these projects in a manner requiring authorization, you acknowledge that the projects are proprietary and that no rights are granted without written permission.
+
+22. PERMISSION REQUESTS
+
+Requests for permission to use, copy, modify, distribute, publish, or otherwise utilize any protected portion of these projects must be directed to the Copyright Owner.
+
+Permission is valid only when explicitly granted in writing.
+
+23. FINAL STATEMENT
+
+YMM SOCIAL, YMM SOCIALWEB, AND YMM SAPP ARE PROPRIETARY PROJECTS.
+
+NO OPEN SOURCE LICENSE IS GRANTED.
+
+NO PERMISSION IS GRANTED TO COPY, MODIFY, DISTRIBUTE, PUBLISH, SELL, REUSE, CLONE, OR OTHERWISE EXPLOIT ANY PROTECTED PORTION OF THESE PROJECTS WITHOUT PRIOR WRITTEN PERMISSION FROM THE COPYRIGHT OWNER.
+
+Copyright © 2026 YMMAMA yousef mamdoh mohamed abdalrhem mohamad awaja
+
+ALL RIGHTS RESERVED.
